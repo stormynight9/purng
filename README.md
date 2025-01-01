@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Purng - Daily Pushup Challenge
+
+Purng is a web application that helps you track your daily pushup goals. The challenge increases progressively throughout the year, making it an engaging way to build strength and consistency.
+
+## How it Works
+
+1. **Daily Goals**: Each day has a unique pushup target that's the same for all users
+
+    - Day 1 of the year: Random number between 0-1 pushups
+    - Day 2 of the year: Random number between 0-2 pushups
+    - And so on...
+
+2. **Track Progress**: Log your pushups throughout the day to reach your daily target
 
 ## Getting Started
 
 First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+```
 bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js 14 (App Router)
+- DrizzleORM with Neon Database
+- Tailwind CSS
+- Shadcn/ui Components
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+Create a `.env` file in the root directory with the following variables:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+DATABASE_URL=your-neon-database-url
+RANDOM_SEED=your-secret-string-here
+```
