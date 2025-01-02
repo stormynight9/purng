@@ -4,13 +4,13 @@ Purng is a web application that helps you track your daily pushup goals. The cha
 
 ## How it Works
 
-1. **Daily Goals**: Each day has a unique pushup target that's the same for all users
+1. Each day has a unique pushup target that's the same for all users
 
     - Day 1 of the year: Random number between 0-1 pushups
     - Day 2 of the year: Random number between 0-2 pushups
     - And so on...
 
-2. **Track Progress**: Log your pushups throughout the day to reach your daily target
+2. Log your pushups throughout the day to reach your daily target
 
 ## Getting Started
 
