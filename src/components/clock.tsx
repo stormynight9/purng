@@ -39,7 +39,7 @@ export function Clock() {
 
     return (
         <div
-            className='fixed left-4 top-4 font-mono text-sm text-muted-foreground hover:cursor-help'
+            className='font-mono text-sm text-muted-foreground hover:cursor-help'
             title='Page will refresh at midnight to update daily target'
         >
             {day}, {time} {timezone}
