@@ -1,11 +1,21 @@
-import { Button } from '@/components/ui/button'
+import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
+import { PushupForm } from '@/components/pushup-form'
+import { Clock } from '@/components/clock'
 
-export default function Home() {
+export default async function Home() {
+    const session = await auth()
+    if (!session?.user) {
+        redirect('/auth/signin')
+    }
+
     return (
         <div>
-            <main className='flex h-screen flex-col items-center justify-center'>
-                <h1 className='text-4xl font-bold'>Hello World</h1>
-                <Button>Click me</Button>
+            <Clock />
+            <main className='flex h-screen flex-col items-center justify-center gap-6'>
+                <div className='flex flex-col items-center gap-2'>
+                    <PushupForm />
+                </div>
             </main>
         </div>
     )

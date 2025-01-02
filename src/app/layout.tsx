@@ -29,7 +29,7 @@ export default function RootLayout({
             style={{ colorScheme: 'dark' }}
         >
             <body
-                className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-[family-name:var(--font-geist-sans)] antialiased`}
+                className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-[family-name:var(--font-geist-mono)] antialiased`}
             >
                 {children}
             </body>

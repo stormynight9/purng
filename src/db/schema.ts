@@ -1,5 +1,6 @@
 import {
     boolean,
+    date,
     integer,
     pgTable,
     primaryKey,
@@ -16,6 +17,18 @@ export const users = pgTable('user', {
     email: text('email').unique(),
     emailVerified: timestamp('emailVerified', { mode: 'date' }),
     image: text('image'),
+})
+
+export const pushupEntries = pgTable('pushup_entry', {
+    id: text('id')
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    userId: text('userId')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+    count: integer('count').notNull(),
+    date: date('date').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
 export const accounts = pgTable(
