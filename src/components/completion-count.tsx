@@ -14,7 +14,8 @@ export async function CompletionCount() {
         )
     }
 
-    const count = await getCompletionCount(today)
+    const count = Number(await getCompletionCount(today))
+
     return (
         <p className='py-4 text-center text-sm text-muted-foreground'>
             {count} {count === 1 ? 'person has' : 'people have'} completed
