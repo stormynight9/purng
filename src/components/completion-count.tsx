@@ -7,7 +7,7 @@ export async function CompletionCount() {
 
     if (target === 0) {
         return (
-            <p className='fixed bottom-4 left-0 right-0 mx-auto text-center text-sm text-muted-foreground'>
+            <p className='py-4 text-center text-sm text-muted-foreground'>
                 It&apos;s a rest day! Everyone has completed today&apos;s target
                 🎉
             </p>
@@ -16,7 +16,7 @@ export async function CompletionCount() {
 
     const count = await getCompletionCount(today)
     return (
-        <p className='fixed bottom-4 left-0 right-0 mx-auto text-center text-sm text-muted-foreground'>
+        <p className='py-4 text-center text-sm text-muted-foreground'>
             {count} {count === 1 ? 'person has' : 'people have'} completed
             today&apos;s target
         </p>
