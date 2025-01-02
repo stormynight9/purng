@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useActionState } from 'react'
 import type { ActionResponse } from '@/lib/types'
 import { addPushups, getTargetData } from '@/lib/actions'
+import { Loader2Icon } from 'lucide-react'
 
 const initialState: ActionResponse = {
     success: false,
@@ -96,16 +97,20 @@ export function PushupForm() {
                                     {state.errors.count[0]}
                                 </p>
                             )}
+                            {state?.message && state.success && (
+                                <p className='mt-1 text-sm text-green-500'>
+                                    {state.message}
+                                </p>
+                            )}
                         </div>
                         <Button type='submit' disabled={isPending}>
-                            {isPending ? 'Adding...' : 'Add'}
+                            {isPending ? (
+                                <Loader2Icon className='h-4 w-4 animate-spin' />
+                            ) : (
+                                'Add'
+                            )}
                         </Button>
                     </form>
-                    {state?.message && state.success && (
-                        <p className='text-sm text-green-500'>
-                            {state.message}
-                        </p>
-                    )}
                 </>
             )}
         </>
