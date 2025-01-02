@@ -110,3 +110,26 @@ export async function getTodaysPushups(dateString: string) {
 
     return result[0]?.total || 0
 }
+
+export async function getCompletionCount(dateString: string) {
+    const date = new Date(dateString)
+    const target = getDailyTarget(date)
+
+    const result = await db
+        .select({
+            count: sql<number>`count(distinct user_totals.user_id)`,
+        })
+        .from(
+            sql`(
+                SELECT 
+                    ${pushupEntries.userId} as user_id,
+                    sum(${pushupEntries.count}) as total_pushups
+                FROM ${pushupEntries}
+                WHERE ${pushupEntries.date} = ${date.toISOString().split('T')[0]}
+                GROUP BY ${pushupEntries.userId}
+                HAVING sum(${pushupEntries.count}) >= ${target}
+            ) as user_totals`
+        )
+
+    return result[0]?.count ?? 0
+}
