@@ -5,11 +5,13 @@ import { useEffect, useState } from 'react'
 export function Clock() {
     const [time, setTime] = useState<string>('')
     const [timezone, setTimezone] = useState<string>('')
+    const [day, setDay] = useState<string>('')
 
     useEffect(() => {
         const updateTime = () => {
             const now = new Date()
             setTime(now.toLocaleTimeString())
+            setDay(now.toLocaleDateString('en-US', { weekday: 'long' }))
             setTimezone(
                 now
                     .toLocaleDateString(undefined, {
@@ -40,7 +42,7 @@ export function Clock() {
             className='fixed left-4 top-4 font-mono text-sm text-muted-foreground hover:cursor-help'
             title='Page will refresh at midnight to update daily target'
         >
-            {time} {timezone}
+            {day}, {time} {timezone}
         </div>
     )
 }
