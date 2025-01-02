@@ -5,6 +5,7 @@ import { CompletionCount } from '@/components/completion-count'
 import { Header } from '@/components/header'
 import { getDailyTarget } from '@/lib/utils.server'
 import { Clock } from '@/components/clock'
+import { TotalPushups } from '@/components/total-pushups'
 
 export default async function Home() {
     const session = await auth()
@@ -72,6 +73,9 @@ export default async function Home() {
             <Header />
             <main className='flex flex-1 flex-col items-center justify-center gap-6 px-5'>
                 <div className='flex flex-col items-center gap-2'>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <TotalPushups />
+                    </Suspense>
                     <PushupForm />
                 </div>
             </main>

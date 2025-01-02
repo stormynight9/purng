@@ -133,3 +133,17 @@ export async function getCompletionCount(dateString: string) {
 
     return result[0]?.count ?? 0
 }
+
+export async function getTotalPushups() {
+    const session = await auth()
+    if (!session?.user?.id) return 0
+
+    const result = await db
+        .select({
+            total: sql<number>`sum(${pushupEntries.count})`,
+        })
+        .from(pushupEntries)
+        .where(eq(pushupEntries.userId, session.user.id))
+
+    return result[0]?.total || 0
+}
