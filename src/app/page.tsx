@@ -31,7 +31,7 @@ export default async function Home() {
                             <h2 className='text-xl font-semibold text-foreground'>
                                 What is Purng?
                             </h2>
-                            <ul className='list-inside list-disc space-y-2'>
+                            <ul className='list-inside list-disc space-y-2 text-sm'>
                                 <li>
                                     A daily pushup challenge that increases
                                     throughout the year
