@@ -6,8 +6,10 @@ import { TotalCommunityPushups } from './total-community-pushups'
 export function Header() {
     return (
         <header className='flex items-center justify-between p-4'>
-            <Clock />
-            <TotalCommunityPushups />
+            <div className='flex flex-col gap-1'>
+                <Clock />
+                <TotalCommunityPushups />
+            </div>
             <form
                 action={async () => {
                     'use server'
