@@ -147,3 +147,13 @@ export async function getTotalPushups() {
 
     return result[0]?.total || 0
 }
+
+export async function getAllUsersTotalPushups() {
+    const result = await db
+        .select({
+            total: sql<number>`sum(${pushupEntries.count})`,
+        })
+        .from(pushupEntries)
+
+    return result[0]?.total || 0
+}

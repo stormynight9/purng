@@ -1,15 +1,23 @@
-'use client'
 import { Clock } from '@/components/clock'
 import { Button } from '@/components/ui/button'
-import { signOut } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
+import { TotalCommunityPushups } from './total-community-pushups'
 
 export function Header() {
     return (
         <header className='flex items-center justify-between p-4'>
             <Clock />
-            <Button variant='ghost' size='sm' onClick={() => signOut()}>
-                Logout
-            </Button>
+            <TotalCommunityPushups />
+            <form
+                action={async () => {
+                    'use server'
+                    await signIn()
+                }}
+            >
+                <Button variant='ghost' size='sm'>
+                    Logout
+                </Button>
+            </form>
         </header>
     )
 }

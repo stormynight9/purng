@@ -3,9 +3,17 @@
 import { useEffect, useState } from 'react'
 
 export function Clock() {
-    const [time, setTime] = useState<string>('')
-    const [timezone, setTimezone] = useState<string>('')
-    const [day, setDay] = useState<string>('')
+    const now = new Date()
+    const [time, setTime] = useState(now.toLocaleTimeString())
+    const [timezone, setTimezone] = useState(
+        now
+            .toLocaleDateString(undefined, { timeZoneName: 'short' })
+            .split(',')[1]
+            .trim()
+    )
+    const [day, setDay] = useState(
+        now.toLocaleDateString('en-US', { weekday: 'long' })
+    )
 
     useEffect(() => {
         const updateTime = () => {
@@ -31,16 +39,15 @@ export function Clock() {
             }
         }
 
-        updateTime()
         const interval = setInterval(updateTime, 1000)
-
         return () => clearInterval(interval)
     }, [])
 
     return (
         <div
-            className='font-mono text-sm text-muted-foreground hover:cursor-help'
+            className='text-sm text-muted-foreground hover:cursor-help'
             title='Page will refresh at midnight to update daily target'
+            suppressHydrationWarning
         >
             {day}, {time} {timezone}
         </div>

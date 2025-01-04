@@ -6,6 +6,7 @@ import { Header } from '@/components/header'
 import { getDailyTarget } from '@/lib/utils.server'
 import { Clock } from '@/components/clock'
 import { TotalPushups } from '@/components/total-pushups'
+import { TotalCommunityPushups } from '@/components/total-community-pushups'
 
 export default async function Home() {
     const session = await auth()
@@ -17,6 +18,7 @@ export default async function Home() {
             <div className='flex min-h-screen flex-col'>
                 <div className='p-4'>
                     <Clock />
+                    <TotalCommunityPushups />
                 </div>
                 <main className='flex flex-1 flex-col items-center justify-center gap-8 px-5'>
                     <div className='flex max-w-md flex-col gap-6 text-center'>
