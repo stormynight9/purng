@@ -1,7 +1,7 @@
 import { Clock } from '@/components/clock'
 import { Button } from '@/components/ui/button'
-import { signIn } from 'next-auth/react'
 import { TotalCommunityPushups } from './total-community-pushups'
+import { signOut } from '@/auth'
 
 export function Header() {
     return (
@@ -13,7 +13,7 @@ export function Header() {
             <form
                 action={async () => {
                     'use server'
-                    await signIn()
+                    await signOut()
                 }}
             >
                 <Button variant='ghost' size='sm'>
