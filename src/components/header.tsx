@@ -1,6 +1,6 @@
 import { Clock } from '@/components/clock'
 import { Button } from '@/components/ui/button'
-import { TotalCommunityPushups } from './total-community-pushups'
+import { HeaderStats } from './header-stats'
 import { signOut } from '@/auth'
 
 export function Header() {
@@ -8,7 +8,7 @@ export function Header() {
         <header className='flex justify-between p-4'>
             <div className='flex flex-col gap-1'>
                 <Clock />
-                <TotalCommunityPushups />
+                <HeaderStats />
             </div>
             <form
                 action={async () => {
