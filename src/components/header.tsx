@@ -5,7 +5,7 @@ import { signOut } from '@/auth'
 
 export function Header() {
     return (
-        <header className='flex items-center justify-between p-4'>
+        <header className='flex justify-between p-4'>
             <div className='flex flex-col gap-1'>
                 <Clock />
                 <TotalCommunityPushups />
