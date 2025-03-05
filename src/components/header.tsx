@@ -5,21 +5,21 @@ import { signOut } from '@/auth'
 
 export function Header() {
     return (
-        <header className='flex justify-between p-4'>
-            <div className='flex flex-col gap-1'>
+        <header className='p-4'>
+            <div className='flex items-center justify-between gap-1'>
                 <Clock />
-                <HeaderStats />
+                <form
+                    action={async () => {
+                        'use server'
+                        await signOut()
+                    }}
+                >
+                    <Button variant='ghost' size='sm'>
+                        Logout
+                    </Button>
+                </form>
             </div>
-            <form
-                action={async () => {
-                    'use server'
-                    await signOut()
-                }}
-            >
-                <Button variant='ghost' size='sm'>
-                    Logout
-                </Button>
-            </form>
+            <HeaderStats />
         </header>
     )
 }
