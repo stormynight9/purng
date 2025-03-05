@@ -1,12 +1,9 @@
 import { auth } from '@/auth'
-import { PushupForm } from '@/components/pushup-form'
-import { Suspense } from 'react'
-import { CompletionCount } from '@/components/completion-count'
-import { Header } from '@/components/header'
-import { getDailyTarget } from '@/lib/utils.server'
 import { Clock } from '@/components/clock'
-import { TotalPushups } from '@/components/total-pushups'
-import { TotalCommunityPushups } from '@/components/total-community-pushups'
+import { Header } from '@/components/header'
+import { HeaderStats } from '@/components/header-stats'
+import { PushupForm } from '@/components/pushup-form'
+import { getDailyTarget } from '@/lib/utils.server'
 
 export default async function Home() {
     const session = await auth()
@@ -18,7 +15,7 @@ export default async function Home() {
             <div className='flex min-h-screen flex-col'>
                 <div className='p-4'>
                     <Clock />
-                    <TotalCommunityPushups />
+                    <HeaderStats />
                 </div>
                 <main className='flex flex-1 flex-col items-center justify-center gap-8 px-5'>
                     <div className='flex max-w-md flex-col gap-6 text-center'>
@@ -49,6 +46,9 @@ export default async function Home() {
                                     Day 2: Random number between 0-2 pushups
                                 </li>
                                 <li>
+                                    Day 60: Random number between 0-60 pushups
+                                </li>
+                                <li>
                                     And so on, making it progressively
                                     challenging
                                 </li>
@@ -63,9 +63,6 @@ export default async function Home() {
                         </div>
                     </div>
                 </main>
-                <Suspense fallback={null}>
-                    <CompletionCount />
-                </Suspense>
             </div>
         )
     }
@@ -75,15 +72,9 @@ export default async function Home() {
             <Header />
             <main className='flex flex-1 flex-col items-center justify-center gap-6 px-5'>
                 <div className='flex flex-col items-center gap-2'>
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <TotalPushups />
-                    </Suspense>
                     <PushupForm />
                 </div>
             </main>
-            <Suspense fallback={null}>
-                <CompletionCount />
-            </Suspense>
         </div>
     )
 }

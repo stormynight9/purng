@@ -1,25 +1,25 @@
 import { Clock } from '@/components/clock'
 import { Button } from '@/components/ui/button'
-import { TotalCommunityPushups } from './total-community-pushups'
+import { HeaderStats } from './header-stats'
 import { signOut } from '@/auth'
 
 export function Header() {
     return (
-        <header className='flex items-center justify-between p-4'>
-            <div className='flex flex-col gap-1'>
+        <header className='p-4'>
+            <div className='flex items-center justify-between gap-1'>
                 <Clock />
-                <TotalCommunityPushups />
+                <form
+                    action={async () => {
+                        'use server'
+                        await signOut()
+                    }}
+                >
+                    <Button variant='ghost' size='sm'>
+                        Logout
+                    </Button>
+                </form>
             </div>
-            <form
-                action={async () => {
-                    'use server'
-                    await signOut()
-                }}
-            >
-                <Button variant='ghost' size='sm'>
-                    Logout
-                </Button>
-            </form>
+            <HeaderStats />
         </header>
     )
 }

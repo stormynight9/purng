@@ -1,5 +1,6 @@
 'use server'
 
+import { cache } from 'react'
 import { auth } from '@/auth'
 import { db } from '@/db/db'
 import { pushupEntries } from '@/db/schema'
@@ -83,14 +84,14 @@ export async function addPushups(
     }
 }
 
-export async function getTargetData(dateString: string) {
+export const getTargetData = cache(async (dateString: string) => {
     const date = new Date(dateString)
     const target = getDailyTarget(date)
     const current = await getTodaysPushups(dateString)
     return { target, current }
-}
+})
 
-export async function getTodaysPushups(dateString: string) {
+export const getTodaysPushups = cache(async (dateString: string) => {
     const session = await auth()
     if (!session?.user?.id) return 0
 
@@ -109,9 +110,9 @@ export async function getTodaysPushups(dateString: string) {
         )
 
     return result[0]?.total || 0
-}
+})
 
-export async function getCompletionCount(dateString: string) {
+export const getCompletionCount = cache(async (dateString: string) => {
     const date = new Date(dateString)
     const target = getDailyTarget(date)
 
@@ -132,9 +133,9 @@ export async function getCompletionCount(dateString: string) {
         )
 
     return result[0]?.count ?? 0
-}
+})
 
-export async function getTotalPushups() {
+export const getTotalPushups = cache(async () => {
     const session = await auth()
     if (!session?.user?.id) return 0
 
@@ -146,9 +147,9 @@ export async function getTotalPushups() {
         .where(eq(pushupEntries.userId, session.user.id))
 
     return result[0]?.total || 0
-}
+})
 
-export async function getAllUsersTotalPushups() {
+export const getAllUsersTotalPushups = cache(async () => {
     const result = await db
         .select({
             total: sql<number>`sum(${pushupEntries.count})`,
@@ -156,4 +157,4 @@ export async function getAllUsersTotalPushups() {
         .from(pushupEntries)
 
     return result[0]?.total || 0
-}
+})
