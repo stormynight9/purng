@@ -45,7 +45,16 @@ export function Clock() {
             title='Page will refresh at midnight to update daily target'
             suppressHydrationWarning
         >
-            {time ? `${day}, ${time} ${timezone}` : 'Loading time...'}
+            {time ? (
+                <>
+                    <div>{day}</div>
+                    <div>
+                        {time} {timezone}
+                    </div>
+                </>
+            ) : (
+                'Loading time...'
+            )}
         </div>
     )
 }

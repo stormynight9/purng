@@ -7,6 +7,7 @@ import { useActionState } from 'react'
 import type { ActionResponse } from '@/lib/types'
 import { addPushups, getTargetData } from '@/lib/actions'
 import { Loader2Icon } from 'lucide-react'
+import { getLocalDateString } from '@/lib/utils'
 
 const initialState: ActionResponse = {
     success: false,
@@ -20,7 +21,7 @@ export function PushupForm() {
         current: number
     } | null>(null)
 
-    const today = new Date().toISOString().split('T')[0]
+    const today = getLocalDateString()
 
     useEffect(() => {
         getTargetData(today).then(setData)
@@ -44,28 +45,39 @@ export function PushupForm() {
 
     const { target, current } = data
     const remaining = Math.max(0, target - current)
+    const isCompleted = target > 0 && remaining === 0
+    const isRestDay = target === 0
 
     const handleSubmit = (formData: FormData) => {
-        const submissionTime = new Date().toISOString()
-        formData.append('submissionTime', submissionTime)
+        // Use local date to prevent timezone issues
+        formData.append('submissionDate', today)
         action(formData)
     }
 
     return (
         <>
             <h1 className='text-4xl font-bold'>Today&apos;s Target</h1>
-            {target === 0 ? (
+            {isRestDay ? (
                 <>
                     <p className='text-6xl font-bold text-primary'>0</p>
                     <p className='text-center text-muted-foreground'>
-                        Lucky you! Today is your rest day. <br />
+                        Lucky you! Today is your rest day. 🎉 <br />
                         Come back tomorrow for a new challenge!
+                    </p>
+                </>
+            ) : isCompleted ? (
+                <>
+                    <p className='text-6xl font-bold text-green-500'>
+                        {current} / {target}
+                    </p>
+                    <p className='text-center text-green-500'>
+                        You&apos;ve completed today&apos;s target!
                     </p>
                 </>
             ) : (
                 <>
                     <p className='text-6xl font-bold text-primary'>
-                        {state.total || current} / {target}
+                        {state.total ?? current} / {target}
                     </p>
                     <p className='text-muted-foreground'>
                         {remaining} pushup{remaining === 1 ? '' : 's'} remaining
