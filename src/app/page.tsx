@@ -17,7 +17,7 @@ export default async function Home() {
                     <Clock />
                     <HeaderStats />
                 </div>
-                <main className='flex flex-1 flex-col items-center justify-center gap-8 px-4 sm:px-6'>
+                <main className='flex flex-1 flex-col items-center justify-center gap-8 p-4 sm:p-6'>
                     <div className='mx-auto flex max-w-4xl flex-col gap-8 text-center'>
                         <div className='flex flex-col gap-4'>
                             <h1 className='font-mono text-4xl font-semibold'>
