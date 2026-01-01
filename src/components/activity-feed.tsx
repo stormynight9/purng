@@ -43,40 +43,12 @@ function getTypeColor(type: ActivityEntry['type']): string {
     }
 }
 
-// Get type label
-function getTypeLabel(type: ActivityEntry['type']): string {
-    switch (type) {
-        case 'completed':
-            return 'DONE'
-        case 'recovery':
-            return 'RECV'
-        case 'regular':
-        default:
-            return 'LOG'
-    }
-}
-
-// Get type label color class
-function getTypeLabelColor(type: ActivityEntry['type']): string {
-    switch (type) {
-        case 'completed':
-            return 'text-emerald-400'
-        case 'recovery':
-            return 'text-amber-400'
-        case 'regular':
-        default:
-            return 'text-blue-400'
-    }
-}
-
 interface LogRowProps {
     entry: ActivityEntry
 }
 
 function LogRow({ entry }: LogRowProps) {
     const dotColor = getTypeColor(entry.type)
-    const labelColor = getTypeLabelColor(entry.type)
-    const label = getTypeLabel(entry.type)
 
     // Build the message parts
     const getMessage = () => {
