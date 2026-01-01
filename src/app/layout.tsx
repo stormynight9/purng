@@ -9,9 +9,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
     title: 'Purng',
-    description: 'The 2025 Pushup Challenge',
+    description: 'The 2026 Pushup Challenge',
     openGraph: {
-        title: 'Purng - The 2025 Pushup Challenge',
+        title: 'Purng - The 2026 Pushup Challenge',
         description:
             'A progressive daily pushup challenge that increases throughout the year. Track your progress and join others in building strength consistently.',
         type: 'website',
@@ -22,13 +22,13 @@ export const metadata: Metadata = {
                 url: '/opengraph-image.png',
                 width: 1200,
                 height: 630,
-                alt: 'Purng - The 2025 Pushup Challenge',
+                alt: 'Purng - The 2026 Pushup Challenge',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Purng - The 2025 Pushup Challenge',
+        title: 'Purng - The 2026 Pushup Challenge',
         description:
             'A progressive daily pushup challenge that increases throughout the year. Track your progress and join others in building strength consistently.',
         images: ['/opengraph-image.png'],

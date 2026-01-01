@@ -10,3 +10,33 @@ export interface ActionResponse {
     }
     total?: number
 }
+
+export interface MissedDay {
+    date: string
+    target: number
+    completed: number
+    missed: number
+}
+
+export type DayStatus = 'future' | 'today' | 'completed' | 'missed' | 'rest'
+
+export interface YearDay {
+    date: string
+    dayOfMonth: number
+    month: number
+    status: DayStatus
+    target: number
+    completed: number
+}
+
+export type ActivityType = 'regular' | 'recovery' | 'completed'
+
+export interface ActivityEntry {
+    id: string
+    userName: string
+    count: number
+    date: string
+    createdAt: Date
+    type: ActivityType
+    target: number
+}
