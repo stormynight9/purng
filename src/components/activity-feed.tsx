@@ -135,13 +135,6 @@ function LogRow({ entry }: LogRowProps) {
             {/* Status dot */}
             <span className={`h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
 
-            {/* Type label */}
-            <span
-                className={`w-10 shrink-0 text-xs font-semibold ${labelColor}`}
-            >
-                {label}
-            </span>
-
             {/* Message */}
             <span className='truncate'>{getMessage()}</span>
         </div>
@@ -234,15 +227,7 @@ export function ActivityFeed() {
     }
 
     return (
-        <div className='overflow-hidden rounded-lg border border-border/40 bg-card'>
-            {/* Header */}
-            <div className='flex items-center gap-3 border-b border-border/40 bg-muted/30 px-3 py-2 font-mono text-xs text-muted-foreground'>
-                <span className='hidden w-[120px] sm:block'>TIMESTAMP</span>
-                <span className='w-2' />
-                <span className='w-10'>TYPE</span>
-                <span>MESSAGE</span>
-            </div>
-
+        <div className='overflow-hidden rounded-lg border-border/40 bg-card'>
             {/* Log rows */}
             <div className='overflow-y-auto'>
                 {entries
