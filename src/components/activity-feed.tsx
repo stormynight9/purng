@@ -212,18 +212,62 @@ export function ActivityFeed() {
         )
     }
 
+    // Filter duplicates and prepare entries with year cutoff markers
+    const processedEntries = entries
+        .filter(
+            (entry, index, self) =>
+                index === self.findIndex((e) => e.id === entry.id)
+        )
+        .flatMap((entry, index, array) => {
+            const result: (
+                | ActivityEntry
+                | { type: 'year-divider'; fromYear: number; toYear: number }
+            )[] = [entry]
+
+            // Check if we need to add a year divider
+            if (index < array.length - 1) {
+                const currentYear = new Date(entry.createdAt).getFullYear()
+                const nextYear = new Date(
+                    array[index + 1].createdAt
+                ).getFullYear()
+
+                // Add divider when transitioning between different years
+                if (currentYear !== nextYear) {
+                    result.push({
+                        type: 'year-divider',
+                        fromYear: nextYear,
+                        toYear: currentYear,
+                    })
+                }
+            }
+
+            return result
+        })
+
     return (
         <div className='overflow-x-auto rounded-lg bg-card'>
             {/* Log rows */}
             <div>
-                {entries
-                    .filter(
-                        (entry, index, self) =>
-                            index === self.findIndex((e) => e.id === entry.id)
+                {processedEntries.map((item, index) => {
+                    if ('type' in item && item.type === 'year-divider') {
+                        return (
+                            <div
+                                key={`year-divider-${index}`}
+                                className='border-y border-red-600 py-2'
+                            >
+                                <div className='text-center font-mono text-xs text-red-600'>
+                                    {item.fromYear} → {item.toYear}
+                                </div>
+                            </div>
+                        )
+                    }
+                    return (
+                        <LogRow
+                            key={(item as ActivityEntry).id}
+                            entry={item as ActivityEntry}
+                        />
                     )
-                    .map((entry) => (
-                        <LogRow key={entry.id} entry={entry} />
-                    ))}
+                })}
 
                 {/* Infinite scroll trigger */}
                 <div ref={observerRef} className='h-1' />
