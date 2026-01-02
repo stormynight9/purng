@@ -54,6 +54,16 @@ export function HeaderStats() {
         }
 
         fetchStats()
+
+        // Listen for pushup updates
+        const handleUpdate = () => {
+            fetchStats()
+        }
+        window.addEventListener('pushups-updated', handleUpdate)
+
+        return () => {
+            window.removeEventListener('pushups-updated', handleUpdate)
+        }
     }, [])
 
     if (!stats) {

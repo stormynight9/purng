@@ -79,6 +79,8 @@ export function RecoveryModal({
         if (state.success && !hasCalledSuccess.current) {
             hasCalledSuccess.current = true
             onSuccess()
+            // Dispatch event to refresh header stats when recovery is successful
+            window.dispatchEvent(new CustomEvent('pushups-updated'))
         }
     }, [state.success, onSuccess])
 

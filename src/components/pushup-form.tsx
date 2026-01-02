@@ -39,6 +39,10 @@ export function PushupForm() {
                     : null
             )
         }
+        // Dispatch event to refresh header stats when submission is successful
+        if (state.success) {
+            window.dispatchEvent(new CustomEvent('pushups-updated'))
+        }
     }, [state])
 
     if (!data) return null
