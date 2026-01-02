@@ -53,7 +53,10 @@ export function Clock() {
                     </div>
                 </>
             ) : (
-                'Loading time...'
+                <>
+                    <div className='invisible'>Monday</div>
+                    <div className='invisible'>12:00:00 AM EST</div>
+                </>
             )}
         </div>
     )

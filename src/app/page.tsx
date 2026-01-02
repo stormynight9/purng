@@ -3,6 +3,7 @@ import { Clock } from '@/components/clock'
 import { Header } from '@/components/header'
 import { HeaderStats } from '@/components/header-stats'
 import { PushupForm } from '@/components/pushup-form'
+import { ActivityFeed } from '@/components/activity-feed'
 import { getDailyTarget } from '@/lib/utils.server'
 
 export default async function Home() {
@@ -12,7 +13,7 @@ export default async function Home() {
 
     if (!session?.user) {
         return (
-            <div className='flex min-h-screen flex-col'>
+            <div className='flex flex-col'>
                 <div className='p-4 sm:p-6'>
                     <Clock />
                     <HeaderStats />
@@ -49,10 +50,22 @@ export default async function Home() {
                                             within the range for that day:
                                         </p>
                                         <ul className='ml-2 list-inside list-disc space-y-1'>
-                                            <li>Day 1: 0-1 pushups</li>
-                                            <li>Day 2: 0-2 pushups</li>
-                                            <li>Day 60: 0-60 pushups</li>
-                                            <li>Day 365: 0-365 pushups</li>
+                                            <li>
+                                                Day 1: Random number between 0-1
+                                                pushups
+                                            </li>
+                                            <li>
+                                                Day 2: Random number between 0-2
+                                                pushups
+                                            </li>
+                                            <li>
+                                                Day 60: Random number between
+                                                0-60 pushups
+                                            </li>
+                                            <li>
+                                                Day 365: Random number between
+                                                0-365 pushups
+                                            </li>
                                         </ul>
                                     </div>
                                     <div>
@@ -85,6 +98,12 @@ export default async function Home() {
                         </div>
                     </div>
                 </main>
+                <div className='mt-4 w-full max-w-2xl px-4 text-left md:mx-auto md:px-0'>
+                    <h2 className='mb-4 font-mono text-xl font-semibold text-foreground'>
+                        Recent Activity
+                    </h2>
+                    <ActivityFeed />
+                </div>
             </div>
         )
     }

@@ -69,7 +69,37 @@ export function HeaderStats() {
     if (!stats) {
         return (
             <ul className='my-6 text-sm text-muted-foreground [&>li]:mt-2'>
-                <li>Loading stats...</li>
+                <li>
+                    - This is day:{' '}
+                    <span className='font-bold text-primary'>
+                        <span className='invisible'>67</span>
+                        <span className='font-normal text-muted-foreground'>
+                            /365
+                        </span>
+                    </span>
+                    <span className='text-muted-foreground'>
+                        {' '}
+                        of <span className='invisible'>2024</span>
+                    </span>
+                </li>
+                <li>
+                    - My <span className='invisible'>2024</span> pushups:{' '}
+                    <span className='font-bold text-primary'>
+                        <span className='invisible'>0</span>
+                    </span>
+                </li>
+                <li>
+                    - Community <span className='invisible'>2024</span> pushups:{' '}
+                    <span className='font-bold text-primary'>
+                        <span className='invisible'>0</span>
+                    </span>
+                </li>
+                <li>
+                    - People completed today&apos;s target:{' '}
+                    <span className='font-bold text-primary'>
+                        <span className='invisible'>0</span>
+                    </span>
+                </li>
             </ul>
         )
     }

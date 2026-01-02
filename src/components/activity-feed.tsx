@@ -21,6 +21,22 @@ function formatLogTimestamp(date: Date): string {
     )
 }
 
+// Format short timestamp for mobile (e.g., "Jan 1, 02:45")
+function formatShortTimestamp(date: Date): string {
+    return (
+        date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+        }) +
+        ', ' +
+        date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        })
+    )
+}
+
 // Format date for display (e.g., "Jan 5")
 function formatDate(dateString: string): string {
     const date = new Date(dateString + 'T00:00:00')
@@ -98,8 +114,11 @@ function LogRow({ entry }: LogRowProps) {
     }
 
     return (
-        <div className='group flex items-center gap-3 border-b border-border/40 px-3 py-2 font-mono text-sm transition-colors hover:bg-muted/30'>
+        <div className='group flex min-w-max items-center gap-3 border-b border-border/40 py-2 font-mono text-xs transition-colors hover:bg-muted/30 sm:text-sm'>
             {/* Timestamp */}
+            <span className='shrink-0 text-xs text-muted-foreground/60 sm:hidden'>
+                {formatShortTimestamp(new Date(entry.createdAt))}
+            </span>
             <span className='hidden w-[120px] shrink-0 text-xs text-muted-foreground/60 sm:block'>
                 {formatLogTimestamp(new Date(entry.createdAt))}
             </span>
@@ -108,7 +127,7 @@ function LogRow({ entry }: LogRowProps) {
             <span className={`h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
 
             {/* Message */}
-            <span className='truncate'>{getMessage()}</span>
+            <span className='whitespace-nowrap'>{getMessage()}</span>
         </div>
     )
 }
@@ -177,14 +196,9 @@ export function ActivityFeed() {
 
     if (initialLoading) {
         return (
-            <div className='overflow-hidden rounded-lg border border-border/40 bg-card'>
-                {[...Array(8)].map((_, i) => (
-                    <div
-                        key={i}
-                        className='h-10 animate-pulse border-b border-border/40 bg-muted/20'
-                    />
-                ))}
-            </div>
+            <p className='my-6 text-sm text-muted-foreground'>
+                Loading activity feed...
+            </p>
         )
     }
 
@@ -199,9 +213,9 @@ export function ActivityFeed() {
     }
 
     return (
-        <div className='overflow-hidden rounded-lg border-border/40 bg-card'>
+        <div className='overflow-x-auto rounded-lg bg-card'>
             {/* Log rows */}
-            <div className='overflow-y-auto'>
+            <div className='inline-block'>
                 {entries
                     .filter(
                         (entry, index, self) =>
