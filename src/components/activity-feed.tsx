@@ -215,7 +215,7 @@ export function ActivityFeed() {
     return (
         <div className='overflow-x-auto rounded-lg bg-card'>
             {/* Log rows */}
-            <div className='inline-block'>
+            <div>
                 {entries
                     .filter(
                         (entry, index, self) =>
