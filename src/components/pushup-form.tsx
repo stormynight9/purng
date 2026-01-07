@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useActionState } from 'react'
 import type { ActionResponse } from '@/lib/types'
-import { addPushups, getTargetData } from '@/lib/actions'
+import { addPushups } from '@/lib/actions'
 import { Loader2Icon } from 'lucide-react'
 import { getLocalDateString } from '@/lib/utils'
 
@@ -14,38 +14,33 @@ const initialState: ActionResponse = {
     message: '',
 }
 
-export function PushupForm() {
+interface PushupFormProps {
+    initialTarget: number
+    initialCurrent: number
+}
+
+export function PushupForm({ initialTarget, initialCurrent }: PushupFormProps) {
     const [state, action, isPending] = useActionState(addPushups, initialState)
-    const [data, setData] = useState<{
-        target: number
-        current: number
-    } | null>(null)
+    const [data, setData] = useState({
+        target: initialTarget,
+        current: initialCurrent,
+    })
 
     const today = getLocalDateString()
 
     useEffect(() => {
-        getTargetData(today).then(setData)
-    }, [today])
-
-    useEffect(() => {
         if (state.total !== undefined) {
             const total = state.total
-            setData((prev) =>
-                prev
-                    ? {
-                          ...prev,
-                          current: total,
-                      }
-                    : null
-            )
+            setData((prev) => ({
+                ...prev,
+                current: total,
+            }))
         }
         // Dispatch event to refresh header stats when submission is successful
         if (state.success) {
             window.dispatchEvent(new CustomEvent('pushups-updated'))
         }
     }, [state])
-
-    if (!data) return null
 
     const { target, current } = data
     const remaining = Math.max(0, target - current)

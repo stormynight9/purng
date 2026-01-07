@@ -3,7 +3,7 @@
 import { auth } from '@/auth'
 import { db } from '@/db/db'
 import { pushupEntries, users } from '@/db/schema'
-import { and, desc, eq, gte, lt, lte, sql } from 'drizzle-orm'
+import { and, eq, gte, lte, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
 import { z } from 'zod'
@@ -12,7 +12,9 @@ import type {
     ActivityEntry,
     ActivityType,
     DayStatus,
+    HomePageData,
     MissedDay,
+    StatsData,
     YearDay,
 } from './types'
 import { getDailyTarget, getLocalDateString } from './utils.server'
@@ -435,87 +437,160 @@ function formatUserName(name: string | null): string {
 }
 
 // Get activity feed with pagination
+// Optimized: uses window function to calculate running totals in a single query
 export async function getActivityFeed(
     cursor?: string,
     limit: number = 20
 ): Promise<{ entries: ActivityEntry[]; nextCursor: string | null }> {
-    // Fetch entries with user info, ordered by createdAt descending
     const cursorDate = cursor ? new Date(cursor) : null
 
-    const baseQuery = db
-        .select({
-            id: pushupEntries.id,
-            userId: pushupEntries.userId,
-            userName: users.name,
-            count: pushupEntries.count,
-            date: pushupEntries.date,
-            createdAt: pushupEntries.createdAt,
-            recovery: pushupEntries.recovery,
-        })
-        .from(pushupEntries)
-        .innerJoin(users, eq(pushupEntries.userId, users.id))
-        .orderBy(desc(pushupEntries.createdAt))
-        .limit(limit + 1) // Fetch one extra to check if there's more
+    // Use a single query with window function to get running totals
+    // This eliminates the N+1 query problem
+    const cursorCondition = cursorDate
+        ? sql`AND ${pushupEntries.createdAt} < ${cursorDate}`
+        : sql``
 
-    const rawEntries = cursorDate
-        ? await baseQuery.where(lt(pushupEntries.createdAt, cursorDate))
-        : await baseQuery
+    const rawEntries = await db.execute<{
+        id: string
+        userId: string
+        userName: string | null
+        count: number
+        date: string
+        createdAt: Date
+        recovery: boolean
+        runningTotal: number
+    }>(sql`
+        SELECT 
+            ${pushupEntries.id} as id,
+            ${pushupEntries.userId} as "userId",
+            ${users.name} as "userName",
+            ${pushupEntries.count} as count,
+            ${pushupEntries.date} as date,
+            ${pushupEntries.createdAt} as "createdAt",
+            ${pushupEntries.recovery} as recovery,
+            COALESCE(
+                SUM(${pushupEntries.count}) OVER (
+                    PARTITION BY ${pushupEntries.userId}, ${pushupEntries.date} 
+                    ORDER BY ${pushupEntries.createdAt} 
+                    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                ),
+                0
+            )::int as "runningTotal"
+        FROM ${pushupEntries}
+        INNER JOIN ${users} ON ${pushupEntries.userId} = ${users.id}
+        WHERE 1=1 ${cursorCondition}
+        ORDER BY ${pushupEntries.createdAt} DESC
+        LIMIT ${limit + 1}
+    `)
 
     // Check if there are more entries
-    const hasMore = rawEntries.length > limit
-    const entries = hasMore ? rawEntries.slice(0, limit) : rawEntries
+    const hasMore = rawEntries.rows.length > limit
+    const entries = hasMore ? rawEntries.rows.slice(0, limit) : rawEntries.rows
 
-    // For each entry, determine the type
-    const activityEntries: ActivityEntry[] = []
+    // Map entries to ActivityEntry format
+    const activityEntries: ActivityEntry[] = entries.map((entry) => {
+        const target = getDailyTarget(new Date(entry.date + 'T00:00:00'))
+        const runningTotal = Number(entry.runningTotal) || 0
+        const priorTotal = runningTotal - entry.count
 
-    for (const entry of entries) {
-        const entryDate = entry.date
-
-        // Calculate target for the entry date
-        const target = getDailyTarget(new Date(entryDate + 'T00:00:00'))
-
-        // Check if this entry could have completed the challenge
-        // We need to know the running total at the time of this entry
-        // For simplicity, mark as completed if total >= target and this was the completing entry
-        const priorEntries = await db
-            .select({
-                total: sql<number>`sum(${pushupEntries.count})`,
-            })
-            .from(pushupEntries)
-            .where(
-                and(
-                    eq(pushupEntries.userId, entry.userId),
-                    eq(pushupEntries.date, entry.date),
-                    lt(pushupEntries.createdAt, entry.createdAt)
-                )
-            )
-        const priorTotal = Number(priorEntries[0]?.total) || 0
-        const newTotal = priorTotal + entry.count
-
-        // Determine final type
+        // Determine entry type
         // Recovery takes priority - if it's a recovery, mark it as recovery
         // regardless of whether it also completed the target
         let type: ActivityType = 'regular'
         if (entry.recovery) {
             type = 'recovery'
-        } else if (target > 0 && priorTotal < target && newTotal >= target) {
+        } else if (
+            target > 0 &&
+            priorTotal < target &&
+            runningTotal >= target
+        ) {
             type = 'completed'
         }
 
-        activityEntries.push({
+        // createdAt comes as string from raw SQL, convert to Date
+        const createdAt =
+            entry.createdAt instanceof Date
+                ? entry.createdAt
+                : new Date(entry.createdAt)
+
+        return {
             id: entry.id,
             userName: formatUserName(entry.userName),
             count: entry.count,
             date: entry.date,
-            createdAt: entry.createdAt,
+            createdAt,
             type,
             target,
-        })
-    }
+        }
+    })
 
     const nextCursor = hasMore
-        ? entries[entries.length - 1].createdAt.toISOString()
+        ? activityEntries[activityEntries.length - 1].createdAt.toISOString()
         : null
 
     return { entries: activityEntries, nextCursor }
+}
+
+// Batched data fetching for the home page - runs all queries in parallel
+export async function getHomePageData(
+    dateString: string,
+    year: number
+): Promise<HomePageData> {
+    const [
+        targetData,
+        myTotal,
+        communityTotal,
+        completionCount,
+        missedPushups,
+        initialFeed,
+    ] = await Promise.all([
+        getTargetData(dateString),
+        getTotalPushups(year),
+        getAllUsersTotalPushups(year),
+        getCompletionCount(dateString),
+        getTotalMissedPushups(dateString),
+        getActivityFeed(undefined, 20),
+    ])
+
+    return {
+        targetData,
+        myTotal,
+        communityTotal,
+        completionCount,
+        missedPushups,
+        initialFeed,
+    }
+}
+
+// Get stats data for header - used for client-side refresh
+export async function getStatsData(
+    dateString: string,
+    year: number
+): Promise<StatsData> {
+    const today = new Date(dateString + 'T00:00:00')
+    const dayNumber = getDayOfYear(today)
+
+    const [myTotal, communityTotal, completionCount, missedPushups] =
+        await Promise.all([
+            getTotalPushups(year),
+            getAllUsersTotalPushups(year),
+            getCompletionCount(dateString),
+            getTotalMissedPushups(dateString),
+        ])
+
+    return {
+        dayNumber,
+        year,
+        myTotal,
+        communityTotal,
+        completionCount,
+        missedPushups,
+    }
+}
+
+function getDayOfYear(date: Date): number {
+    const start = new Date(date.getFullYear(), 0, 0)
+    const diff = date.getTime() - start.getTime()
+    const oneDay = 1000 * 60 * 60 * 24
+    return Math.floor(diff / oneDay)
 }

@@ -1,35 +1,16 @@
-'use client'
-
-import { useCallback, useEffect, useState } from 'react'
-import { YearGrid } from '@/components/year-grid'
 import { getYearData } from '@/lib/actions'
-import { getLocalDateString } from '@/lib/utils'
+import { getLocalDateString } from '@/lib/utils.server'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import type { YearDay } from '@/lib/types'
+import { YearGridClient } from '@/components/year-grid-client'
 
-export default function YearPage() {
-    const [yearData, setYearData] = useState<YearDay[] | null>(null)
-    const [year, setYear] = useState<number>(new Date().getFullYear())
+export default async function YearPage() {
+    const today = new Date()
+    const year = today.getFullYear()
+    const dateString = getLocalDateString(today)
 
-    const refreshData = useCallback(() => {
-        const today = new Date()
-        const dateString = getLocalDateString(today)
-        setYear(today.getFullYear())
-        getYearData(dateString).then(setYearData)
-    }, [])
-
-    useEffect(() => {
-        refreshData()
-    }, [refreshData])
-
-    if (!yearData) {
-        return (
-            <main className='flex min-h-screen items-center justify-center'>
-                <p className='font-mono text-muted-foreground'>Loading...</p>
-            </main>
-        )
-    }
+    // Fetch year data on the server
+    const yearData = await getYearData(dateString)
 
     // Calculate stats
     const completedDays = yearData.filter(
@@ -114,7 +95,7 @@ export default function YearPage() {
                         </span>
                     )}
                 </div>
-                <YearGrid days={yearData} onRecoverySuccess={refreshData} />
+                <YearGridClient initialDays={yearData} />
             </div>
         </main>
     )

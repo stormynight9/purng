@@ -1,66 +1,44 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import {
-    getAllUsersTotalPushups,
-    getCompletionCount,
-    getTotalPushups,
-    getTotalMissedPushups,
-} from '@/lib/actions'
+import { getStatsData } from '@/lib/actions'
 import { getLocalDateString } from '@/lib/utils'
+import type { StatsData } from '@/lib/types'
 
-interface StatsData {
-    dayNumber: number
-    year: number
-    myTotal: number
-    communityTotal: number
-    completionCount: number
-    missedPushups: number
+interface HeaderStatsProps {
+    initialStats?: StatsData
 }
 
-function getDayOfYear(date: Date): number {
-    const start = new Date(date.getFullYear(), 0, 0)
-    const diff = date.getTime() - start.getTime()
-    const oneDay = 1000 * 60 * 60 * 24
-    return Math.floor(diff / oneDay)
-}
-
-export function HeaderStats() {
-    const [stats, setStats] = useState<StatsData | null>(null)
+export function HeaderStats({ initialStats }: HeaderStatsProps) {
+    const [stats, setStats] = useState<StatsData | null>(initialStats ?? null)
 
     useEffect(() => {
+        // If we have initial stats, don't fetch on mount
+        if (initialStats) return
+
+        // Fetch stats if not provided (for unauthenticated users)
         async function fetchStats() {
             const today = new Date()
             const year = today.getFullYear()
             const dateString = getLocalDateString(today)
-            const dayNumber = getDayOfYear(today)
-
-            const [myTotal, communityTotal, completionCount, missedPushups] =
-                await Promise.all([
-                    getTotalPushups(year),
-                    getAllUsersTotalPushups(year),
-                    getCompletionCount(dateString),
-                    getTotalMissedPushups(dateString),
-                ])
-
-            setStats({
-                dayNumber,
-                year,
-                myTotal,
-                communityTotal,
-                completionCount,
-                missedPushups,
-            })
+            const data = await getStatsData(dateString, year)
+            setStats(data)
         }
 
         fetchStats()
+    }, [initialStats])
 
-        // Listen for pushup updates
-        const handleUpdate = () => {
-            fetchStats()
+    useEffect(() => {
+        // Listen for pushup updates and refresh stats
+        const handleUpdate = async () => {
+            const today = new Date()
+            const year = today.getFullYear()
+            const dateString = getLocalDateString(today)
+            const data = await getStatsData(dateString, year)
+            setStats(data)
         }
-        window.addEventListener('pushups-updated', handleUpdate)
 
+        window.addEventListener('pushups-updated', handleUpdate)
         return () => {
             window.removeEventListener('pushups-updated', handleUpdate)
         }

@@ -132,12 +132,24 @@ function LogRow({ entry }: LogRowProps) {
     )
 }
 
-export function ActivityFeed() {
-    const [entries, setEntries] = useState<ActivityEntry[]>([])
-    const [cursor, setCursor] = useState<string | null>(null)
-    const [hasMore, setHasMore] = useState(true)
+interface ActivityFeedProps {
+    initialEntries?: ActivityEntry[]
+    initialCursor?: string | null
+}
+
+export function ActivityFeed({
+    initialEntries,
+    initialCursor,
+}: ActivityFeedProps) {
+    const [entries, setEntries] = useState<ActivityEntry[]>(
+        initialEntries ?? []
+    )
+    const [cursor, setCursor] = useState<string | null>(initialCursor ?? null)
+    const [hasMore, setHasMore] = useState(
+        initialCursor !== null || !initialEntries
+    )
     const [loading, setLoading] = useState(false)
-    const [initialLoading, setInitialLoading] = useState(true)
+    const [initialLoading, setInitialLoading] = useState(!initialEntries)
     const observerRef = useRef<HTMLDivElement>(null)
 
     const loadMore = useCallback(async () => {
@@ -165,9 +177,11 @@ export function ActivityFeed() {
         }
     }, [cursor, hasMore, loading])
 
-    // Initial load
+    // Initial load only if no initial entries were provided
     useEffect(() => {
-        loadMore()
+        if (!initialEntries) {
+            loadMore()
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

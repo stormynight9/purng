@@ -4,19 +4,42 @@ import { Header } from '@/components/header'
 import { HeaderStats } from '@/components/header-stats'
 import { PushupForm } from '@/components/pushup-form'
 import { ActivityFeed } from '@/components/activity-feed'
-import { getDailyTarget } from '@/lib/utils.server'
+import { getDailyTarget, getLocalDateString } from '@/lib/utils.server'
+import { getHomePageData } from '@/lib/actions'
+
+function getDayOfYear(date: Date): number {
+    const start = new Date(date.getFullYear(), 0, 0)
+    const diff = date.getTime() - start.getTime()
+    const oneDay = 1000 * 60 * 60 * 24
+    return Math.floor(diff / oneDay)
+}
 
 export default async function Home() {
     const session = await auth()
     const today = new Date()
+    const year = today.getFullYear()
+    const dateString = getLocalDateString(today)
     const target = getDailyTarget(today)
+
+    // Fetch all data in parallel on the server
+    const homeData = await getHomePageData(dateString, year)
+
+    // Build stats data for components
+    const statsData = {
+        dayNumber: getDayOfYear(today),
+        year,
+        myTotal: homeData.myTotal,
+        communityTotal: homeData.communityTotal,
+        completionCount: homeData.completionCount,
+        missedPushups: homeData.missedPushups,
+    }
 
     if (!session?.user) {
         return (
             <div className='flex flex-col'>
                 <div className='p-4 sm:p-6'>
                     <Clock />
-                    <HeaderStats />
+                    <HeaderStats initialStats={statsData} />
                 </div>
                 <main className='flex flex-1 flex-col items-center justify-center gap-8 p-4 sm:p-6'>
                     <div className='mx-auto flex max-w-4xl flex-col gap-8 text-center'>
@@ -102,7 +125,10 @@ export default async function Home() {
                     <h2 className='mb-4 font-mono text-xl font-semibold text-foreground'>
                         Recent Activity
                     </h2>
-                    <ActivityFeed />
+                    <ActivityFeed
+                        initialEntries={homeData.initialFeed.entries}
+                        initialCursor={homeData.initialFeed.nextCursor}
+                    />
                 </div>
             </div>
         )
@@ -110,10 +136,13 @@ export default async function Home() {
 
     return (
         <div className='flex min-h-screen flex-col'>
-            <Header />
+            <Header initialStats={statsData} />
             <main className='flex flex-1 flex-col items-center justify-center gap-6 px-4 py-8 sm:px-6'>
                 <div className='mx-auto flex w-full max-w-4xl flex-col items-center gap-6'>
-                    <PushupForm />
+                    <PushupForm
+                        initialTarget={homeData.targetData.target}
+                        initialCurrent={homeData.targetData.current}
+                    />
                 </div>
             </main>
         </div>
