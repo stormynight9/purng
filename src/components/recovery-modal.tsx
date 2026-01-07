@@ -65,12 +65,20 @@ export function RecoveryModal({
         initialState
     )
     const hasCalledSuccess = useRef(false)
+    const formKey = day?.date || 'default'
 
     const missed = day ? day.target - day.completed : 0
 
     // Reset the success flag when modal opens with a new day
     useEffect(() => {
         if (open) {
+            hasCalledSuccess.current = false
+        }
+    }, [open, day?.date])
+
+    // Reset state when day changes or modal closes
+    useEffect(() => {
+        if (!open || !day) {
             hasCalledSuccess.current = false
         }
     }, [open, day?.date])
@@ -121,7 +129,7 @@ export function RecoveryModal({
                 </div>
             </div>
 
-            <form action={handleSubmit} className='flex gap-2'>
+            <form key={formKey} action={handleSubmit} className='flex gap-2'>
                 <div className='flex-1'>
                     <Input
                         type='number'
@@ -162,7 +170,7 @@ export function RecoveryModal({
 
     if (isDesktop) {
         return (
-            <Dialog open={open} onOpenChange={onOpenChange}>
+            <Dialog key={formKey} open={open} onOpenChange={onOpenChange}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Recover Pushups</DialogTitle>
@@ -175,7 +183,7 @@ export function RecoveryModal({
     }
 
     return (
-        <Drawer open={open} onOpenChange={onOpenChange}>
+        <Drawer key={formKey} open={open} onOpenChange={onOpenChange}>
             <DrawerContent>
                 <DrawerHeader>
                     <DrawerTitle>Recover Pushups</DrawerTitle>

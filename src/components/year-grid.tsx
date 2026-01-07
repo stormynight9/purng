@@ -93,6 +93,7 @@ export function YearGrid({ days, onRecoverySuccess }: YearGridProps) {
 
             {/* Recovery Modal */}
             <RecoveryModal
+                key={selectedDay?.date || 'no-day'}
                 day={selectedDay}
                 open={modalOpen}
                 onOpenChange={setModalOpen}
