@@ -5,18 +5,10 @@ import { getStatsData } from '@/lib/actions'
 import { getLocalDateString } from '@/lib/utils'
 import type { StatsData } from '@/lib/types'
 
-interface HeaderStatsProps {
-    initialStats?: StatsData
-}
-
-export function HeaderStats({ initialStats }: HeaderStatsProps) {
-    const [stats, setStats] = useState<StatsData | null>(initialStats ?? null)
+export function HeaderStats() {
+    const [stats, setStats] = useState<StatsData | null>(null)
 
     useEffect(() => {
-        // If we have initial stats, don't fetch on mount
-        if (initialStats) return
-
-        // Fetch stats if not provided (for unauthenticated users)
         async function fetchStats() {
             const today = new Date()
             const year = today.getFullYear()
@@ -26,16 +18,10 @@ export function HeaderStats({ initialStats }: HeaderStatsProps) {
         }
 
         fetchStats()
-    }, [initialStats])
 
-    useEffect(() => {
         // Listen for pushup updates and refresh stats
-        const handleUpdate = async () => {
-            const today = new Date()
-            const year = today.getFullYear()
-            const dateString = getLocalDateString(today)
-            const data = await getStatsData(dateString, year)
-            setStats(data)
+        const handleUpdate = () => {
+            fetchStats()
         }
 
         window.addEventListener('pushups-updated', handleUpdate)

@@ -12,7 +12,6 @@ import type {
     ActivityEntry,
     ActivityType,
     DayStatus,
-    HomePageData,
     MissedDay,
     StatsData,
     YearDay,
@@ -529,37 +528,6 @@ export async function getActivityFeed(
         : null
 
     return { entries: activityEntries, nextCursor }
-}
-
-// Batched data fetching for the home page - runs all queries in parallel
-export async function getHomePageData(
-    dateString: string,
-    year: number
-): Promise<HomePageData> {
-    const [
-        targetData,
-        myTotal,
-        communityTotal,
-        completionCount,
-        missedPushups,
-        initialFeed,
-    ] = await Promise.all([
-        getTargetData(dateString),
-        getTotalPushups(year),
-        getAllUsersTotalPushups(year),
-        getCompletionCount(dateString),
-        getTotalMissedPushups(dateString),
-        getActivityFeed(undefined, 20),
-    ])
-
-    return {
-        targetData,
-        myTotal,
-        communityTotal,
-        completionCount,
-        missedPushups,
-        initialFeed,
-    }
 }
 
 // Get stats data for header - used for client-side refresh

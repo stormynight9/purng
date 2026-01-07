@@ -3,13 +3,8 @@ import { Button } from '@/components/ui/button'
 import { HeaderStats } from './header-stats'
 import { signOut } from '@/auth'
 import Link from 'next/link'
-import type { StatsData } from '@/lib/types'
 
-interface HeaderProps {
-    initialStats?: StatsData
-}
-
-export function Header({ initialStats }: HeaderProps) {
+export function Header() {
     return (
         <header className='p-4'>
             <div className='flex items-center justify-between gap-1'>
@@ -37,7 +32,7 @@ export function Header({ initialStats }: HeaderProps) {
                     </form>
                 </div>
             </div>
-            <HeaderStats initialStats={initialStats} />
+            <HeaderStats />
         </header>
     )
 }

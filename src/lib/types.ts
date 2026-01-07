@@ -41,15 +41,6 @@ export interface ActivityEntry {
     target: number
 }
 
-export interface HomePageData {
-    targetData: { target: number; current: number }
-    myTotal: number
-    communityTotal: number
-    completionCount: number
-    missedPushups: number
-    initialFeed: { entries: ActivityEntry[]; nextCursor: string | null }
-}
-
 export interface StatsData {
     dayNumber: number
     year: number
