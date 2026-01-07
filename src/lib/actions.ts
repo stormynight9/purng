@@ -69,6 +69,7 @@ export async function addPushups(
             userId: session.user.id,
             count: validatedFields.data.count,
             date: validatedFields.data.submissionDate,
+            recovery: false,
         })
 
         const newTotal = await getTodaysPushups(submissionDate)
@@ -326,6 +327,7 @@ export async function recoverPushups(
             userId: session.user.id,
             count: validatedFields.data.count,
             date: validatedFields.data.targetDate,
+            recovery: true,
         })
 
         revalidatePath('/')
@@ -448,6 +450,7 @@ export async function getActivityFeed(
             count: pushupEntries.count,
             date: pushupEntries.date,
             createdAt: pushupEntries.createdAt,
+            recovery: pushupEntries.recovery,
         })
         .from(pushupEntries)
         .innerJoin(users, eq(pushupEntries.userId, users.id))
@@ -467,10 +470,6 @@ export async function getActivityFeed(
 
     for (const entry of entries) {
         const entryDate = entry.date
-        const createdAtDate = getLocalDateString(entry.createdAt)
-
-        // Determine type based on whether it's a recovery
-        const isRecovery = entryDate < createdAtDate
 
         // Calculate target for the entry date
         const target = getDailyTarget(new Date(entryDate + 'T00:00:00'))
@@ -494,11 +493,13 @@ export async function getActivityFeed(
         const newTotal = priorTotal + entry.count
 
         // Determine final type
+        // Recovery takes priority - if it's a recovery, mark it as recovery
+        // regardless of whether it also completed the target
         let type: ActivityType = 'regular'
-        if (target > 0 && priorTotal < target && newTotal >= target) {
-            type = 'completed'
-        } else if (isRecovery) {
+        if (entry.recovery) {
             type = 'recovery'
+        } else if (target > 0 && priorTotal < target && newTotal >= target) {
+            type = 'completed'
         }
 
         activityEntries.push({

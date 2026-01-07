@@ -29,6 +29,7 @@ export const pushupEntries = pgTable('pushup_entry', {
     count: integer('count').notNull(),
     date: date('date').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
+    recovery: boolean('recovery').notNull().default(false),
 })
 
 export const accounts = pgTable(
