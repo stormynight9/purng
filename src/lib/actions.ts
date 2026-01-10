@@ -537,6 +537,7 @@ export async function getStatsData(
 ): Promise<StatsData> {
     const today = new Date(dateString + 'T00:00:00')
     const dayNumber = getDayOfYear(today)
+    const target = getDailyTarget(today)
 
     const [myTotal, communityTotal, completionCount, missedPushups] =
         await Promise.all([
@@ -553,6 +554,7 @@ export async function getStatsData(
         communityTotal,
         completionCount,
         missedPushups,
+        target,
     }
 }
 

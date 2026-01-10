@@ -48,4 +48,5 @@ export interface StatsData {
     communityTotal: number
     completionCount: number
     missedPushups: number
+    target: number
 }

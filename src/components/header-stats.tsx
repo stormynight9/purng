@@ -32,9 +32,10 @@ export function HeaderStats() {
 
     if (!stats) {
         return (
-            <ul className='my-6 text-sm text-muted-foreground [&>li]:mt-2'>
+            <ul className='my-6 text-sm text-muted-foreground [&>li>span:first-child]:inline-block [&>li]:relative [&>li]:mt-2 [&>li]:pl-4'>
                 <li>
-                    - This is day:{' '}
+                    <span className='absolute left-0'>-</span>
+                    <span>This is day: </span>
                     <span className='font-bold text-primary'>
                         <span className='invisible'>67</span>
                         <span className='font-normal text-muted-foreground'>
@@ -47,21 +48,29 @@ export function HeaderStats() {
                     </span>
                 </li>
                 <li>
-                    - My <span className='invisible'>2024</span> pushups:{' '}
+                    <span className='absolute left-0'>-</span>
+                    <span>
+                        My <span className='invisible'>2024</span> pushups:{' '}
+                    </span>
                     <span className='font-bold text-primary'>
                         <span className='invisible'>0</span>
                     </span>
                 </li>
                 <li>
-                    - Community <span className='invisible'>2024</span> pushups:{' '}
+                    <span className='absolute left-0'>-</span>
+                    <span>
+                        Community <span className='invisible'>2024</span>{' '}
+                        pushups:{' '}
+                    </span>
                     <span className='font-bold text-primary'>
                         <span className='invisible'>0</span>
                     </span>
                 </li>
                 <li>
-                    - People completed today&apos;s target:{' '}
+                    <span className='absolute left-0'>-</span>
+                    <span>People completed today&apos;s target: </span>
                     <span className='font-bold text-primary'>
-                        <span className='invisible'>0</span>
+                        <span className='invisible'>Everyone</span>
                     </span>
                 </li>
             </ul>
@@ -69,9 +78,10 @@ export function HeaderStats() {
     }
 
     return (
-        <ul className='my-6 text-sm text-muted-foreground [&>li]:mt-2'>
+        <ul className='my-6 text-sm text-muted-foreground [&>li]:relative [&>li]:mt-2 [&>li]:pl-4'>
             <li>
-                - This is day:{' '}
+                <span className='absolute left-0'>-</span>
+                <span>This is day: </span>
                 <span className='font-bold text-primary'>
                     {stats.dayNumber}
                     <span className='font-normal text-muted-foreground'>
@@ -81,26 +91,32 @@ export function HeaderStats() {
                 <span className='text-muted-foreground'> of {stats.year}</span>
             </li>
             <li>
-                - My {stats.year} pushups:{' '}
+                <span className='absolute left-0'>-</span>
+                <span>My {stats.year} pushups: </span>
                 <span className='font-bold text-primary'>
                     {stats.myTotal.toLocaleString()}
                 </span>
             </li>
             <li>
-                - Community {stats.year} pushups:{' '}
+                <span className='absolute left-0'>-</span>
+                <span>Community {stats.year} pushups: </span>
                 <span className='font-bold text-primary'>
                     {stats.communityTotal.toLocaleString()}
                 </span>
             </li>
             <li>
-                - People completed today&apos;s target:{' '}
+                <span className='absolute left-0'>-</span>
+                <span>People completed today&apos;s target: </span>
                 <span className='font-bold text-primary'>
-                    {stats.completionCount.toLocaleString()}
+                    {stats.target === 0
+                        ? 'Everyone'
+                        : stats.completionCount.toLocaleString()}
                 </span>
             </li>
             {stats.missedPushups > 0 && (
                 <li>
-                    - Missed pushups to recover:{' '}
+                    <span className='absolute left-0'>-</span>
+                    <span>Missed pushups to recover: </span>
                     <span className='font-bold text-orange-500'>
                         {stats.missedPushups.toLocaleString()}
                     </span>
