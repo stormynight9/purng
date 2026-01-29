@@ -59,7 +59,14 @@ export async function submitFeedback(
     const fromEmail =
         process.env.RESEND_FROM ?? 'Purng Feedback <onboarding@resend.dev>'
 
-    if (resendApiKey && toEmail) {
+    if (!resendApiKey || !toEmail) {
+        // In production, set RESEND_API_KEY and FEEDBACK_TO_EMAIL in your host's env (e.g. Vercel project settings)
+        if (process.env.NODE_ENV === 'production') {
+            console.warn(
+                '[feedback] Email skipped: RESEND_API_KEY or FEEDBACK_TO_EMAIL not set in production env'
+            )
+        }
+    } else {
         try {
             const resend = new Resend(resendApiKey)
             const subject =
@@ -80,7 +87,7 @@ export async function submitFeedback(
                 text,
             })
         } catch (e) {
-            console.error('Resend send failed:', e)
+            console.error('[feedback] Resend send failed:', e)
             // Submission is already stored in Convex; don't fail the form
         }
     }
