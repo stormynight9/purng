@@ -1,5 +1,6 @@
 import { Clock } from '@/components/clock'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/submit-button'
 import { HeaderStats } from './header-stats'
 import { signOut } from '@/auth'
 import Link from 'next/link'
@@ -26,9 +27,9 @@ export function Header() {
                             await signOut()
                         }}
                     >
-                        <Button variant='ghost' size='sm'>
+                        <SubmitButton variant='ghost' size='sm'>
                             Logout
-                        </Button>
+                        </SubmitButton>
                     </form>
                 </div>
             </div>

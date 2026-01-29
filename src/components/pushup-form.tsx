@@ -92,7 +92,10 @@ export function PushupForm() {
                         {remaining} pushup{remaining === 1 ? '' : 's'} remaining
                     </p>
                     <form
-                        action={handleSubmit}
+                        onSubmit={(e) => {
+                            e.preventDefault()
+                            handleSubmit(new FormData(e.currentTarget))
+                        }}
                         className='flex w-full max-w-xs gap-2'
                     >
                         <div className='flex-1'>
@@ -106,19 +109,18 @@ export function PushupForm() {
                                 aria-describedby='count-error'
                                 className={error ? 'border-destructive' : ''}
                             />
-                            {error && (
-                                <p
-                                    id='count-error'
-                                    className='mt-1 text-sm text-destructive'
-                                >
-                                    {error}
-                                </p>
-                            )}
-                            {success && (
-                                <p className='mt-1 text-sm text-green-500'>
-                                    {success}
-                                </p>
-                            )}
+                            <div
+                                id='count-error'
+                                className='mt-1 min-h-5 text-sm'
+                                aria-live='polite'
+                            >
+                                {error && (
+                                    <p className='text-destructive'>{error}</p>
+                                )}
+                                {success && (
+                                    <p className='text-green-500'>{success}</p>
+                                )}
+                            </div>
                         </div>
                         <Button type='submit' disabled={isPending}>
                             {isPending ? (
