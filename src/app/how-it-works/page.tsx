@@ -1,8 +1,12 @@
+import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/header'
 
-export default function HowItWorksPage() {
+export default async function HowItWorksPage() {
+    const session = await auth()
+    if (!session?.user) redirect('/auth/signin')
     return (
         <div className='flex min-h-screen flex-col'>
             <Header />

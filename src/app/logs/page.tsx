@@ -1,9 +1,13 @@
+import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
 import { ActivityFeed } from '@/components/activity-feed'
 import { Header } from '@/components/header'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
-export default function LogsPage() {
+export default async function LogsPage() {
+    const session = await auth()
+    if (!session?.user) redirect('/auth/signin')
     return (
         <div className='flex min-h-screen flex-col'>
             <Header />
