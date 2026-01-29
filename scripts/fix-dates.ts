@@ -12,15 +12,18 @@ if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
 
 const client = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL)
 
-async function fixTimestamps() {
-    console.log('Fixing timestamps in pushup entries (adding 1 hour)...')
+async function fixDatesAndTimestamps() {
+    console.log('Fixing dates and timestamps in pushup entries...')
+    console.log(`Using Convex URL: ${process.env.NEXT_PUBLIC_CONVEX_URL}`)
 
     const result = await client.mutation(
-        api.migrations.fixDates.fixTimestamps,
+        api.migrations.fixDates.fixDatesAndTimestamps,
         {}
     )
 
-    console.log(`✅ Fixed ${result.fixed} out of ${result.total} entries`)
+    console.log(
+        `✅ Fixed ${result.fixedDates} dates and ${result.fixedTimestamps} timestamps out of ${result.total} entries`
+    )
 }
 
-fixTimestamps().catch(console.error)
+fixDatesAndTimestamps().catch(console.error)
