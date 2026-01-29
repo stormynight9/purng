@@ -36,7 +36,7 @@ export interface ActivityEntry {
     userName: string
     count: number
     date: string
-    createdAt: Date
+    createdAt: number
     type: ActivityType
     target: number
 }

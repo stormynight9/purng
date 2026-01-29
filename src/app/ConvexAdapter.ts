@@ -19,7 +19,10 @@ type Authenticator = AdapterAuthenticator & { userId: Id<'users'> }
 export const ConvexAdapter: Adapter = {
     async createAuthenticator(authenticator: Authenticator) {
         await callMutation(api.authAdapter.createAuthenticator, {
-            authenticator,
+            authenticator: {
+                ...authenticator,
+                transports: authenticator.transports ?? undefined,
+            },
         })
         return authenticator
     },
@@ -214,7 +217,7 @@ function toDB<T extends object>(
           : T[K]
 } {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: Record<string, any> = {}
+    const result: Record<string, unknown> = {}
     for (const key in obj) {
         const value = obj[key]
         result[key] =
@@ -224,5 +227,6 @@ function toDB<T extends object>(
                   ? undefined
                   : value
     }
-    return result
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return result as any
 }
