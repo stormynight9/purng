@@ -77,7 +77,7 @@ export function YearGrid({ days, onRecoverySuccess }: YearGridProps) {
                             {day.status === 'future'
                                 ? '?'
                                 : day.status === 'rest'
-                                  ? '-'
+                                  ? 'R'
                                   : day.target}
                         </span>
                         {day.status !== 'future' &&
