@@ -20,6 +20,11 @@ export function Header() {
                             Year View
                         </Button>
                     </Link>
+                    <Link href='/leaderboard'>
+                        <Button variant='ghost' size='sm'>
+                            Leaderboard
+                        </Button>
+                    </Link>
                     <form
                         action={async () => {
                             'use server'

@@ -9,6 +9,7 @@
  */
 
 import type * as authAdapter from "../authAdapter.js";
+import type * as migrations_backfillStats from "../migrations/backfillStats.js";
 import type * as migrations_fixDates from "../migrations/fixDates.js";
 import type * as migrations_importData from "../migrations/importData.js";
 import type * as mutations from "../mutations.js";
@@ -23,6 +24,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   authAdapter: typeof authAdapter;
+  "migrations/backfillStats": typeof migrations_backfillStats;
   "migrations/fixDates": typeof migrations_fixDates;
   "migrations/importData": typeof migrations_importData;
   mutations: typeof mutations;
