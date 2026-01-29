@@ -543,13 +543,23 @@ export const getLeaderboard = query({
             userIds.map((id, i) => [id, users[i]?.name ?? null])
         )
 
-        return sorted.map((doc, i) => ({
-            rank: i + 1,
-            userId: doc.userId,
-            userName: formatUserName(userMap.get(doc.userId) ?? null),
-            recoveredPushups: doc.recoveredPushups ?? 0,
-            onTimePushups: doc.onTimePushups ?? 0,
-            total: doc.myTotal,
-        }))
+        // Assign tied ranks: same (total, onTime) => same rank
+        let rank = 1
+        return sorted.map((doc, i) => {
+            const prev = sorted[i - 1]
+            const sameAsPrev =
+                prev &&
+                prev.myTotal === doc.myTotal &&
+                (prev.onTimePushups ?? 0) === (doc.onTimePushups ?? 0)
+            if (!sameAsPrev) rank = i + 1
+            return {
+                rank,
+                userId: doc.userId,
+                userName: formatUserName(userMap.get(doc.userId) ?? null),
+                recoveredPushups: doc.recoveredPushups ?? 0,
+                onTimePushups: doc.onTimePushups ?? 0,
+                total: doc.myTotal,
+            }
+        })
     },
 })
