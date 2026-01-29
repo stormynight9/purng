@@ -31,9 +31,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+Create a `.env.local` (and/or `.env`) in the root with the variables your app uses (e.g. `NEXT_PUBLIC_CONVEX_URL`, auth, Resend, etc.).
 
-```
-DATABASE_URL=your-neon-database-url
-RANDOM_SEED=your-secret-string-here
-```
+### Web Push (optional)
+
+To enable push notifications:
+
+1. Generate VAPID keys: `npx web-push generate-vapid-keys`
+2. **Next.js** (`.env.local`): set `NEXT_PUBLIC_VAPID_PUBLIC_KEY` to the public key (so the client can subscribe).
+3. **Convex** (Dashboard → Settings → Environment Variables): set `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (so the daily reminder action can send).
+
+Without these, the notification bell is hidden and the daily reminder cron does nothing.

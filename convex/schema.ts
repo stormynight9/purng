@@ -104,4 +104,14 @@ export default defineSchema({
         email: v.optional(v.string()),
         name: v.optional(v.string()),
     }).index('by_created_at', ['createdAt']),
+    // Web push: one row per subscription (user can have multiple devices)
+    pushSubscriptions: defineTable({
+        userEmail: v.string(),
+        endpoint: v.string(),
+        p256dh: v.string(),
+        auth: v.string(),
+        createdAt: v.number(),
+    })
+        .index('by_user_email', ['userEmail'])
+        .index('by_endpoint', ['endpoint']),
 })
