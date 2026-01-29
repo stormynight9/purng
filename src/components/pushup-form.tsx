@@ -1,62 +1,67 @@
 'use client'
 
 import { Input } from '@/components/ui/input'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { useActionState } from 'react'
-import type { ActionResponse } from '@/lib/types'
-import { addPushups, getTargetData } from '@/lib/actions'
+import { useMutation, useQuery } from 'convex/react'
+import { api } from '@convex/_generated/api'
 import { Loader2Icon } from 'lucide-react'
 import { getLocalDateString } from '@/lib/utils'
-
-const initialState: ActionResponse = {
-    success: false,
-    message: '',
-}
+import { useSession } from 'next-auth/react'
 
 export function PushupForm() {
-    const [state, action, isPending] = useActionState(addPushups, initialState)
-    const [data, setData] = useState<{
-        target: number
-        current: number
-    } | null>(null)
+    const { data: session } = useSession()
+    const [error, setError] = useState<string | null>(null)
+    const [success, setSuccess] = useState<string | null>(null)
+    const [isPending, setIsPending] = useState(false)
 
     const today = getLocalDateString()
+    const userEmail = session?.user?.email ?? undefined
+    const targetData = useQuery(api.queries.getTargetData, {
+        dateString: today,
+        userEmail,
+    })
+    const addPushupsMutation = useMutation(api.mutations.addPushups)
 
-    useEffect(() => {
-        getTargetData(today).then(setData)
-    }, [today])
+    const handleSubmit = async (formData: FormData) => {
+        if (!userEmail) {
+            setError('Not authenticated')
+            return
+        }
 
-    useEffect(() => {
-        if (state.total !== undefined) {
-            const total = state.total
-            setData((prev) =>
-                prev
-                    ? {
-                          ...prev,
-                          current: total,
-                      }
-                    : null
+        setIsPending(true)
+        setError(null)
+        setSuccess(null)
+
+        try {
+            const count = Number(formData.get('count'))
+            const result = await addPushupsMutation({
+                count,
+                submissionDate: today,
+                userEmail,
+            })
+
+            if (result.success) {
+                setSuccess(result.message)
+                window.dispatchEvent(new CustomEvent('pushups-updated'))
+            }
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'An unexpected error occurred'
             )
+        } finally {
+            setIsPending(false)
         }
-        // Dispatch event to refresh header stats when submission is successful
-        if (state.success) {
-            window.dispatchEvent(new CustomEvent('pushups-updated'))
-        }
-    }, [state])
+    }
 
-    if (!data) return null
+    if (!targetData) return null
 
-    const { target, current } = data
+    const { target, current } = targetData
     const remaining = Math.max(0, target - current)
     const isCompleted = target > 0 && remaining === 0
     const isRestDay = target === 0
-
-    const handleSubmit = (formData: FormData) => {
-        // Use local date to prevent timezone issues
-        formData.append('submissionDate', today)
-        action(formData)
-    }
 
     return (
         <>
@@ -81,7 +86,7 @@ export function PushupForm() {
             ) : (
                 <>
                     <p className='text-6xl font-bold text-primary'>
-                        {state.total ?? current} / {target}
+                        {current} / {target}
                     </p>
                     <p className='text-muted-foreground'>
                         {remaining} pushup{remaining === 1 ? '' : 's'} remaining
@@ -99,23 +104,19 @@ export function PushupForm() {
                                 placeholder='How many pushups?'
                                 required
                                 aria-describedby='count-error'
-                                className={
-                                    state?.errors?.count
-                                        ? 'border-destructive'
-                                        : ''
-                                }
+                                className={error ? 'border-destructive' : ''}
                             />
-                            {state?.errors?.count && (
+                            {error && (
                                 <p
                                     id='count-error'
                                     className='mt-1 text-sm text-destructive'
                                 >
-                                    {state.errors.count[0]}
+                                    {error}
                                 </p>
                             )}
-                            {state?.message && state.success && (
+                            {success && (
                                 <p className='mt-1 text-sm text-green-500'>
-                                    {state.message}
+                                    {success}
                                 </p>
                             )}
                         </div>

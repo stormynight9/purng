@@ -1,27 +1,28 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { getStatsData } from '@/lib/actions'
+import { useEffect } from 'react'
+import { useQuery } from 'convex/react'
+import { api } from '@convex/_generated/api'
 import { getLocalDateString } from '@/lib/utils'
-import type { StatsData } from '@/lib/types'
+import { useSession } from 'next-auth/react'
 
 export function HeaderStats() {
-    const [stats, setStats] = useState<StatsData | null>(null)
+    const { data: session } = useSession()
+    const today = new Date()
+    const year = today.getFullYear()
+    const dateString = getLocalDateString(today)
+    const userEmail = session?.user?.email ?? undefined
 
+    const stats = useQuery(api.queries.getStatsData, {
+        dateString,
+        year,
+        userEmail,
+    })
+
+    // Listen for pushup updates - Convex will automatically refetch
     useEffect(() => {
-        async function fetchStats() {
-            const today = new Date()
-            const year = today.getFullYear()
-            const dateString = getLocalDateString(today)
-            const data = await getStatsData(dateString, year)
-            setStats(data)
-        }
-
-        fetchStats()
-
-        // Listen for pushup updates and refresh stats
         const handleUpdate = () => {
-            fetchStats()
+            // Convex queries are reactive, so they'll automatically update
         }
 
         window.addEventListener('pushups-updated', handleUpdate)

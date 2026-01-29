@@ -1,8 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import { useActionState } from 'react'
 import { useEffect, useState, useRef } from 'react'
+import { useMutation } from 'convex/react'
+import { api } from '@convex/_generated/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -19,14 +20,9 @@ import {
     DrawerHeader,
     DrawerTitle,
 } from '@/components/ui/drawer'
-import { recoverPushups } from '@/lib/actions'
-import type { ActionResponse, YearDay } from '@/lib/types'
+import type { YearDay } from '@/lib/types'
 import { Loader2Icon } from 'lucide-react'
-
-const initialState: ActionResponse = {
-    success: false,
-    message: '',
-}
+import { useSession } from 'next-auth/react'
 
 function useMediaQuery(query: string) {
     const [matches, setMatches] = useState(false)
@@ -59,20 +55,24 @@ export function RecoveryModal({
     onOpenChange,
     onSuccess,
 }: RecoveryModalProps) {
+    const { data: session } = useSession()
     const isDesktop = useMediaQuery('(min-width: 768px)')
-    const [state, action, isPending] = useActionState(
-        recoverPushups,
-        initialState
-    )
+    const recoverPushupsMutation = useMutation(api.mutations.recoverPushups)
+    const [isPending, setIsPending] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [success, setSuccess] = useState<string | null>(null)
     const hasCalledSuccess = useRef(false)
     const formKey = day?.date || 'default'
 
     const missed = day ? day.target - day.completed : 0
+    const userEmail = session?.user?.email
 
     // Reset the success flag when modal opens with a new day
     useEffect(() => {
         if (open) {
             hasCalledSuccess.current = false
+            setError(null)
+            setSuccess(null)
         }
     }, [open, day?.date])
 
@@ -81,21 +81,38 @@ export function RecoveryModal({
         if (!open || !day) {
             hasCalledSuccess.current = false
         }
-    }, [open, day?.date])
+    }, [open, day])
 
-    useEffect(() => {
-        if (state.success && !hasCalledSuccess.current) {
-            hasCalledSuccess.current = true
-            onSuccess()
-            // Dispatch event to refresh header stats when recovery is successful
-            window.dispatchEvent(new CustomEvent('pushups-updated'))
+    const handleSubmit = async (formData: FormData) => {
+        if (!day || !userEmail) return
+
+        setIsPending(true)
+        setError(null)
+        setSuccess(null)
+
+        try {
+            const count = Number(formData.get('count'))
+            const result = await recoverPushupsMutation({
+                count,
+                targetDate: day.date,
+                userEmail,
+            })
+
+            if (result.success && !hasCalledSuccess.current) {
+                hasCalledSuccess.current = true
+                setSuccess(result.message)
+                onSuccess()
+                window.dispatchEvent(new CustomEvent('pushups-updated'))
+            }
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'An unexpected error occurred'
+            )
+        } finally {
+            setIsPending(false)
         }
-    }, [state.success, onSuccess])
-
-    const handleSubmit = (formData: FormData) => {
-        if (!day) return
-        formData.append('targetDate', day.date)
-        action(formData)
     }
 
     if (!day) return null
@@ -139,22 +156,18 @@ export function RecoveryModal({
                         placeholder={`Recover up to ${missed}`}
                         required
                         aria-describedby='recovery-error'
-                        className={
-                            state?.errors?.count ? 'border-destructive' : ''
-                        }
+                        className={error ? 'border-destructive' : ''}
                     />
-                    {state?.errors?.count && (
+                    {error && (
                         <p
                             id='recovery-error'
                             className='mt-1 text-sm text-destructive'
                         >
-                            {state.errors.count[0]}
+                            {error}
                         </p>
                     )}
-                    {state?.message && state.success && (
-                        <p className='mt-1 text-sm text-green-500'>
-                            {state.message}
-                        </p>
+                    {success && (
+                        <p className='mt-1 text-sm text-green-500'>{success}</p>
                     )}
                 </div>
                 <Button type='submit' disabled={isPending}>
