@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/submit-button'
 import { auth, signIn } from '@/auth'
 import { redirect } from 'next/navigation'
 import { Icons } from '@/components/icons'
@@ -28,10 +28,13 @@ export default async function SignIn() {
                             await signIn('github')
                         }}
                     >
-                        <Button className='w-full gap-2' variant='outline'>
+                        <SubmitButton
+                            className='w-full gap-2'
+                            variant='outline'
+                        >
                             <Icons.github className='h-4 w-4' />
                             Sign in with GitHub
-                        </Button>
+                        </SubmitButton>
                     </form>
                     <form
                         action={async () => {
@@ -39,10 +42,13 @@ export default async function SignIn() {
                             await signIn('google')
                         }}
                     >
-                        <Button variant='outline' className='w-full gap-2'>
+                        <SubmitButton
+                            variant='outline'
+                            className='w-full gap-2'
+                        >
                             <Icons.google className='h-4 w-4' />
                             Sign in with Google
-                        </Button>
+                        </SubmitButton>
                     </form>
                 </div>
             </div>
