@@ -1,8 +1,7 @@
 import { Clock } from '@/components/clock'
-import { Button } from '@/components/ui/button'
 import { HeaderStats } from './header-stats'
-import { signOut } from '@/auth'
-import Link from 'next/link'
+import { HeaderNav } from './header-nav'
+import { signOutAction } from '@/lib/actions'
 
 export function Header() {
     return (
@@ -10,31 +9,7 @@ export function Header() {
             <div className='flex items-center justify-between gap-1'>
                 <Clock />
                 <div className='flex items-center gap-2'>
-                    <Link href='/logs'>
-                        <Button variant='ghost' size='sm'>
-                            Logs
-                        </Button>
-                    </Link>
-                    <Link href='/year'>
-                        <Button variant='ghost' size='sm'>
-                            Year View
-                        </Button>
-                    </Link>
-                    <Link href='/leaderboard'>
-                        <Button variant='ghost' size='sm'>
-                            Leaderboard
-                        </Button>
-                    </Link>
-                    <form
-                        action={async () => {
-                            'use server'
-                            await signOut()
-                        }}
-                    >
-                        <Button variant='ghost' size='sm'>
-                            Logout
-                        </Button>
-                    </form>
+                    <HeaderNav signOut={signOutAction} />
                 </div>
             </div>
             <HeaderStats />

@@ -52,10 +52,10 @@ export default function RootLayout({
                 <Analytics />
             </head>
             <body className='min-h-screen antialiased'>
-                <div className='w-full border-b bg-amber-900/10 py-2 text-center text-sm text-amber-500'>
+                {/* <div className='w-full border-b bg-amber-900/10 py-2 text-center text-sm text-amber-500'>
                     Maintenance: Some features may be unavailable while we
                     upgrade the site. Thanks for your patience!
-                </div>
+                </div> */}
                 <SessionProvider>
                     <ConvexProvider>{children}</ConvexProvider>
                 </SessionProvider>
