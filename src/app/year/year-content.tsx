@@ -7,6 +7,7 @@ import { Header } from '@/components/header'
 import { getLocalDateString } from '@/lib/utils'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { BuyMeACoffee } from '@/components/buy-me-a-coffee'
 
 interface YearContentProps {
     userEmail: string | undefined
@@ -126,6 +127,7 @@ export function YearContent({ userEmail }: YearContentProps) {
                     </div>
                     <YearGrid days={yearData} onRecoverySuccess={refreshData} />
                 </div>
+                <BuyMeACoffee className='mt-8' />
             </main>
         </div>
     )

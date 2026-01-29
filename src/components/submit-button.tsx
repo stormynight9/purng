@@ -16,6 +16,7 @@ interface SubmitButtonProps {
     size?: 'default' | 'sm' | 'lg' | 'icon'
     className?: string
     showSpinner?: boolean
+    disabled?: boolean
 }
 
 export function SubmitButton({
@@ -24,8 +25,10 @@ export function SubmitButton({
     size = 'default',
     className,
     showSpinner = true,
+    disabled: disabledProp,
 }: SubmitButtonProps) {
     const { pending } = useFormStatus()
+    const disabled = disabledProp ?? pending
 
     return (
         <Button
@@ -33,9 +36,9 @@ export function SubmitButton({
             variant={variant}
             size={size}
             className={className}
-            disabled={pending}
+            disabled={disabled}
         >
-            {pending && showSpinner ? (
+            {disabled && showSpinner ? (
                 <span className='inline-flex items-center gap-2'>
                     <Loader2Icon className='h-4 w-4 shrink-0 animate-spin' />
                     {children}

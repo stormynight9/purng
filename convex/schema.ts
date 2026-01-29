@@ -96,4 +96,12 @@ export default defineSchema({
     })
         .index('by_user_and_year', ['userId', 'year'])
         .index('by_year', ['year']),
+    feedback: defineTable({
+        type: v.union(v.literal('feedback'), v.literal('bug')),
+        message: v.string(),
+        createdAt: v.number(),
+        userId: v.optional(v.id('users')),
+        email: v.optional(v.string()),
+        name: v.optional(v.string()),
+    }).index('by_created_at', ['createdAt']),
 })

@@ -20,6 +20,7 @@ const navLinks = [
     { href: '/year', label: 'Year View' },
     { href: '/leaderboard', label: 'Leaderboard' },
     { href: '/how-it-works', label: 'How it works' },
+    { href: '/feedback', label: 'Feedback' },
 ] as const
 
 export function HeaderNav({ signOut }: HeaderNavProps) {
