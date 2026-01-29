@@ -79,14 +79,23 @@ export const getTotalPushups = query({
         if (!user) return 0
 
         const targetYear = args.year ?? new Date().getFullYear()
+
+        const stats = await ctx.db
+            .query('userYearlyStats')
+            .withIndex('by_user_and_year', (q) =>
+                q.eq('userId', user._id).eq('year', targetYear)
+            )
+            .first()
+
+        if (stats) return stats.myTotal
+
+        // Fallback: compute from entries (pre-backfill or edge case)
         const startOfYear = `${targetYear}-01-01`
         const endOfYear = `${targetYear}-12-31`
-
         const entries = await ctx.db
             .query('pushupEntries')
             .withIndex('by_user', (q) => q.eq('userId', user._id))
             .collect()
-
         return entries
             .filter(
                 (entry) => entry.date >= startOfYear && entry.date <= endOfYear
@@ -104,16 +113,14 @@ export const getAllUsersTotalPushups = query({
     },
     handler: async (ctx, args) => {
         const targetYear = args.year ?? new Date().getFullYear()
-        const startOfYear = `${targetYear}-01-01`
-        const endOfYear = `${targetYear}-12-31`
 
-        const entries = await ctx.db.query('pushupEntries').collect()
+        const stats = await ctx.db
+            .query('yearlyCommunityStats')
+            .withIndex('by_year', (q) => q.eq('year', targetYear))
+            .first()
 
-        return entries
-            .filter(
-                (entry) => entry.date >= startOfYear && entry.date <= endOfYear
-            )
-            .reduce((sum, entry) => sum + entry.count, 0)
+        if (stats) return stats.communityTotal
+        return 0
     },
 })
 
@@ -505,5 +512,44 @@ export const getActivityFeed = query({
             : null
 
         return { entries: activityEntries, nextCursor }
+    },
+})
+
+// ============================================================================
+// getLeaderboard
+// ============================================================================
+export const getLeaderboard = query({
+    args: {
+        year: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const stats = await ctx.db
+            .query('userYearlyStats')
+            .withIndex('by_year', (q) => q.eq('year', args.year))
+            .collect()
+
+        const sorted = [...stats].sort((a, b) => {
+            const totalA = a.myTotal
+            const totalB = b.myTotal
+            if (totalB !== totalA) return totalB - totalA
+            const onTimeA = a.onTimePushups ?? 0
+            const onTimeB = b.onTimePushups ?? 0
+            return onTimeB - onTimeA
+        })
+
+        const userIds = [...new Set(sorted.map((s) => s.userId))]
+        const users = await Promise.all(userIds.map((id) => ctx.db.get(id)))
+        const userMap = new Map(
+            userIds.map((id, i) => [id, users[i]?.name ?? null])
+        )
+
+        return sorted.map((doc, i) => ({
+            rank: i + 1,
+            userId: doc.userId,
+            userName: formatUserName(userMap.get(doc.userId) ?? null),
+            recoveredPushups: doc.recoveredPushups ?? 0,
+            onTimePushups: doc.onTimePushups ?? 0,
+            total: doc.myTotal,
+        }))
     },
 })
