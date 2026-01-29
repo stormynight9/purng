@@ -73,6 +73,45 @@ export const addPushups = mutation({
             recovery: false,
         })
 
+        const year = date.getFullYear()
+        const count = validatedFields.data.count
+
+        const existingCommunity = await ctx.db
+            .query('yearlyCommunityStats')
+            .withIndex('by_year', (q) => q.eq('year', year))
+            .first()
+        if (existingCommunity) {
+            await ctx.db.patch(existingCommunity._id, {
+                communityTotal: existingCommunity.communityTotal + count,
+            })
+        } else {
+            await ctx.db.insert('yearlyCommunityStats', {
+                year,
+                communityTotal: count,
+            })
+        }
+
+        const existingUserStats = await ctx.db
+            .query('userYearlyStats')
+            .withIndex('by_user_and_year', (q) =>
+                q.eq('userId', user._id).eq('year', year)
+            )
+            .first()
+        if (existingUserStats) {
+            await ctx.db.patch(existingUserStats._id, {
+                myTotal: existingUserStats.myTotal + count,
+                onTimePushups: (existingUserStats.onTimePushups ?? 0) + count,
+            })
+        } else {
+            await ctx.db.insert('userYearlyStats', {
+                userId: user._id,
+                year,
+                myTotal: count,
+                onTimePushups: count,
+                recoveredPushups: 0,
+            })
+        }
+
         const newEntries = await ctx.db
             .query('pushupEntries')
             .withIndex('by_user_and_date', (q) =>
@@ -158,6 +197,46 @@ export const recoverPushups = mutation({
             createdAt: Date.now(),
             recovery: true,
         })
+
+        const year = new Date(args.targetDate + 'T00:00:00').getFullYear()
+        const count = validatedFields.data.count
+
+        const existingCommunity = await ctx.db
+            .query('yearlyCommunityStats')
+            .withIndex('by_year', (q) => q.eq('year', year))
+            .first()
+        if (existingCommunity) {
+            await ctx.db.patch(existingCommunity._id, {
+                communityTotal: existingCommunity.communityTotal + count,
+            })
+        } else {
+            await ctx.db.insert('yearlyCommunityStats', {
+                year,
+                communityTotal: count,
+            })
+        }
+
+        const existingUserStats = await ctx.db
+            .query('userYearlyStats')
+            .withIndex('by_user_and_year', (q) =>
+                q.eq('userId', user._id).eq('year', year)
+            )
+            .first()
+        if (existingUserStats) {
+            await ctx.db.patch(existingUserStats._id, {
+                myTotal: existingUserStats.myTotal + count,
+                recoveredPushups:
+                    (existingUserStats.recoveredPushups ?? 0) + count,
+            })
+        } else {
+            await ctx.db.insert('userYearlyStats', {
+                userId: user._id,
+                year,
+                myTotal: count,
+                onTimePushups: 0,
+                recoveredPushups: count,
+            })
+        }
 
         return {
             success: true,

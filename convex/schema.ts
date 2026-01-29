@@ -82,4 +82,18 @@ export default defineSchema({
         .index('by_user_and_date', ['userId', 'date'])
         .index('by_date', ['date'])
         .index('by_created_at', ['createdAt']),
+    // Pre-computed stats for getStatsData (avoids full table scans)
+    yearlyCommunityStats: defineTable({
+        year: v.number(),
+        communityTotal: v.number(),
+    }).index('by_year', ['year']),
+    userYearlyStats: defineTable({
+        userId: v.id('users'),
+        year: v.number(),
+        myTotal: v.number(),
+        onTimePushups: v.optional(v.number()),
+        recoveredPushups: v.optional(v.number()),
+    })
+        .index('by_user_and_year', ['userId', 'year'])
+        .index('by_year', ['year']),
 })
