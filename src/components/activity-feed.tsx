@@ -1,6 +1,7 @@
 'use client'
 
-import { getActivityFeed } from '@/lib/actions'
+import { useQuery } from 'convex/react'
+import { api } from '@convex/_generated/api'
 import type { ActivityEntry } from '@/lib/types'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -134,7 +135,7 @@ function LogRow({ entry }: LogRowProps) {
 
 interface ActivityFeedProps {
     initialEntries?: ActivityEntry[]
-    initialCursor?: string | null
+    initialCursor?: number | null
 }
 
 export function ActivityFeed({
@@ -144,7 +145,7 @@ export function ActivityFeed({
     const [entries, setEntries] = useState<ActivityEntry[]>(
         initialEntries ?? []
     )
-    const [cursor, setCursor] = useState<string | null>(initialCursor ?? null)
+    const [cursor, setCursor] = useState<number | null>(initialCursor ?? null)
     const [hasMore, setHasMore] = useState(
         initialCursor !== null || !initialEntries
     )
@@ -152,12 +153,37 @@ export function ActivityFeed({
     const [initialLoading, setInitialLoading] = useState(!initialEntries)
     const observerRef = useRef<HTMLDivElement>(null)
 
+    // Use the first page query
+    const feedResult = useQuery(
+        api.queries.getActivityFeed,
+        cursor === null && entries.length === 0 ? { limit: 20 } : 'skip'
+    )
+
+    // Update initial entries from query result
+    useEffect(() => {
+        if (feedResult && entries.length === 0) {
+            setEntries(feedResult.entries)
+            setCursor(feedResult.nextCursor ?? null)
+            setHasMore(feedResult.nextCursor !== null)
+            setInitialLoading(false)
+        }
+    }, [feedResult, entries.length])
+
     const loadMore = useCallback(async () => {
-        if (loading || !hasMore) return
+        if (loading || !hasMore || !cursor) return
 
         setLoading(true)
         try {
-            const result = await getActivityFeed(cursor ?? undefined)
+            // Use ConvexHttpClient directly for pagination
+            const { ConvexHttpClient } = await import('convex/browser')
+            const client = new ConvexHttpClient(
+                process.env.NEXT_PUBLIC_CONVEX_URL!
+            )
+            const result = await client.query(api.queries.getActivityFeed, {
+                cursor,
+                limit: 20,
+            })
+
             setEntries((prev) => {
                 // Create a Set of existing entry IDs for fast lookup
                 const existingIds = new Set(prev.map((e) => e.id))
@@ -167,23 +193,14 @@ export function ActivityFeed({
                 )
                 return [...prev, ...newEntries]
             })
-            setCursor(result.nextCursor)
+            setCursor(result.nextCursor ?? null)
             setHasMore(result.nextCursor !== null)
         } catch (error) {
             console.error('Failed to load activity feed:', error)
         } finally {
             setLoading(false)
-            setInitialLoading(false)
         }
     }, [cursor, hasMore, loading])
-
-    // Initial load only if no initial entries were provided
-    useEffect(() => {
-        if (!initialEntries) {
-            loadMore()
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
     // Infinite scroll observer
     useEffect(() => {
@@ -216,7 +233,7 @@ export function ActivityFeed({
         )
     }
 
-    if (entries.length === 0) {
+    if (entries.length === 0 && !initialLoading) {
         return (
             <div className='rounded-lg border border-border/40 bg-card p-12 text-center'>
                 <p className='font-mono text-sm text-muted-foreground'>

@@ -64,3 +64,8 @@
         @apply bg-background text-foreground;
     }
 }
+
+html {
+    /* Prevent jump on scrollbar toggle (Chrome, Firefox) */
+    scrollbar-gutter: stable;
+}

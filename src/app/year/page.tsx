@@ -1,27 +1,29 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from 'convex/react'
+import { api } from '@convex/_generated/api'
 import { YearGrid } from '@/components/year-grid'
-import { getYearData } from '@/lib/actions'
 import { getLocalDateString } from '@/lib/utils'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import type { YearDay } from '@/lib/types'
+import { useSession } from 'next-auth/react'
 
 export default function YearPage() {
-    const [yearData, setYearData] = useState<YearDay[] | null>(null)
-    const [year, setYear] = useState<number>(new Date().getFullYear())
+    const { data: session } = useSession()
+    const today = new Date()
+    const dateString = getLocalDateString(today)
+    const year = today.getFullYear()
+    const userEmail = session?.user?.email ?? undefined
 
-    const refreshData = useCallback(() => {
-        const today = new Date()
-        const dateString = getLocalDateString(today)
-        setYear(today.getFullYear())
-        getYearData(dateString).then(setYearData)
-    }, [])
+    const yearData = useQuery(api.queries.getYearData, {
+        todayDateString: dateString,
+        userEmail,
+    })
 
-    useEffect(() => {
-        refreshData()
-    }, [refreshData])
+    const refreshData = () => {
+        // Convex queries are reactive, so they'll automatically update
+    }
 
     if (!yearData) {
         return (

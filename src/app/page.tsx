@@ -5,15 +5,11 @@ import { HeaderStats } from '@/components/header-stats'
 import { PushupForm } from '@/components/pushup-form'
 import { ActivityFeed } from '@/components/activity-feed'
 import { getDailyTarget } from '@/lib/utils.server'
-import { getActivityFeed } from '@/lib/actions'
 
 export default async function Home() {
     const session = await auth()
     const today = new Date()
     const target = getDailyTarget(today)
-
-    // Only fetch activity feed on server (not date-critical)
-    const initialFeed = await getActivityFeed(undefined, 20)
 
     if (!session?.user) {
         return (
@@ -106,10 +102,7 @@ export default async function Home() {
                     <h2 className='mb-4 font-mono text-xl font-semibold text-foreground'>
                         Recent Activity
                     </h2>
-                    <ActivityFeed
-                        initialEntries={initialFeed.entries}
-                        initialCursor={initialFeed.nextCursor}
-                    />
+                    <ActivityFeed />
                 </div>
             </div>
         )
