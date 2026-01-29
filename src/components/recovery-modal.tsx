@@ -81,7 +81,7 @@ export function RecoveryModal({
         if (!open || !day) {
             hasCalledSuccess.current = false
         }
-    }, [open, day?.date])
+    }, [open, day])
 
     const handleSubmit = async (formData: FormData) => {
         if (!day || !userEmail) return

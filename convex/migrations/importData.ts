@@ -1,5 +1,6 @@
 import { mutation } from '../_generated/server'
 import { v } from 'convex/values'
+import { Id } from '../_generated/dataModel'
 
 export const importUsers = mutation({
     args: { users: v.array(v.any()) },
@@ -39,7 +40,7 @@ export const importPushupEntries = mutation({
             }
 
             await ctx.db.insert('pushupEntries', {
-                userId: newUserId as any,
+                userId: newUserId as Id<'users'>,
                 count: entry.count,
                 date: entry.date,
                 createdAt: new Date(entry.created_at).getTime(),
@@ -68,7 +69,7 @@ export const importAccounts = mutation({
             }
 
             await ctx.db.insert('accounts', {
-                userId: newUserId as any,
+                userId: newUserId as Id<'users'>,
                 type: account.type,
                 provider: account.provider,
                 providerAccountId: account.providerAccountId,
@@ -103,7 +104,7 @@ export const importSessions = mutation({
             }
 
             await ctx.db.insert('sessions', {
-                userId: newUserId as any,
+                userId: newUserId as Id<'users'>,
                 sessionToken: session.sessionToken,
                 expires: new Date(session.expires).getTime(),
             })

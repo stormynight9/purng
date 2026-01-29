@@ -29,7 +29,8 @@ export const ConvexAdapter: Adapter = {
         })
         return { ...session, id }
     },
-    async createUser({ id: _, ...user }: User) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async createUser({ id: _id, ...user }: User) {
         const id = await callMutation(api.authAdapter.createUser, {
             user: toDB(user),
         })
@@ -137,6 +138,7 @@ function callQuery<Query extends FunctionReference<'query'>>(
     query: Query,
     args: Omit<FunctionArgs<Query>, 'secret'>
 ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return fetchQuery(query, addSecret(args) as any)
 }
 
@@ -144,6 +146,7 @@ function callMutation<Mutation extends FunctionReference<'mutation'>>(
     mutation: Mutation,
     args: Omit<FunctionArgs<Mutation>, 'secret'>
 ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return fetchMutation(mutation, addSecret(args) as any)
 }
 
@@ -151,7 +154,7 @@ if (process.env.CONVEX_AUTH_ADAPTER_SECRET === undefined) {
     throw new Error('Missing CONVEX_AUTH_ADAPTER_SECRET environment variable')
 }
 
-function addSecret(args: Record<string, any>) {
+function addSecret(args: Record<string, unknown>) {
     return { ...args, secret: process.env.CONVEX_AUTH_ADAPTER_SECRET! }
 }
 
@@ -210,7 +213,8 @@ function toDB<T extends object>(
           ? undefined
           : T[K]
 } {
-    const result: any = {}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: Record<string, any> = {}
     for (const key in obj) {
         const value = obj[key]
         result[key] =

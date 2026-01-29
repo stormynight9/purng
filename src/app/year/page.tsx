@@ -6,7 +6,6 @@ import { YearGrid } from '@/components/year-grid'
 import { getLocalDateString } from '@/lib/utils'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import type { YearDay } from '@/lib/types'
 import { useSession } from 'next-auth/react'
 
 export default function YearPage() {
