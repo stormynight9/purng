@@ -11,10 +11,13 @@ self.addEventListener('push', (event) => {
         payload = { title: 'Purng', body: '', url: '/' }
     }
     const title = payload.title || 'Purng'
+    // Use absolute URL so icon loads regardless of SW scope. Icon must have
+    // transparent background or Android shows a white square (monochrome mask).
+    const iconUrl = new URL('/notification-icon.png', self.location.origin).href
     const options = {
         body: payload.body || '',
-        icon: '/web-app-manifest-192x192.png',
-        badge: '/web-app-manifest-192x192.png',
+        icon: iconUrl,
+        badge: iconUrl,
         data: { url: payload.url || '/' },
     }
     event.waitUntil(self.registration.showNotification(title, options))
