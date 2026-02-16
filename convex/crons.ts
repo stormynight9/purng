@@ -3,10 +3,17 @@ import { internal } from './_generated/api'
 
 const crons = cronJobs()
 
-// Daily push reminder at 14:00 UTC for users who haven't logged today
+// Morning push reminder at 09:00 UTC for users who haven't completed today's challenge
 crons.daily(
-    'daily-push-reminder',
-    { hourUTC: 14, minuteUTC: 0 },
+    'daily-push-reminder-morning',
+    { hourUTC: 9, minuteUTC: 0 },
+    internal.sendPush.sendDailyReminders
+)
+
+// Evening push reminder at 19:00 UTC for users who haven't completed today's challenge
+crons.daily(
+    'daily-push-reminder-evening',
+    { hourUTC: 19, minuteUTC: 0 },
     internal.sendPush.sendDailyReminders
 )
 

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useMutation, useQuery } from 'convex/react'
+import { ConvexError } from 'convex/values'
 import { api } from '@convex/_generated/api'
 import { Loader2Icon } from 'lucide-react'
 import { getLocalDateString } from '@/lib/utils'
@@ -46,11 +47,13 @@ export function PushupForm() {
                 window.dispatchEvent(new CustomEvent('pushups-updated'))
             }
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'An unexpected error occurred'
-            )
+            const message =
+                err instanceof ConvexError
+                    ? typeof err.data === 'string'
+                        ? err.data
+                        : 'Something went wrong. Please try again.'
+                    : 'Something went wrong. Please try again.'
+            setError(message)
         } finally {
             setIsPending(false)
         }
@@ -107,7 +110,7 @@ export function PushupForm() {
                                 placeholder='How many pushups?'
                                 required
                                 aria-describedby='count-error'
-                                className={error ? 'border-destructive' : ''}
+                                className={error ? 'border-red-500' : ''}
                             />
                             <div
                                 id='count-error'
@@ -115,7 +118,7 @@ export function PushupForm() {
                                 aria-live='polite'
                             >
                                 {error && (
-                                    <p className='text-destructive'>{error}</p>
+                                    <p className='text-red-500'>{error}</p>
                                 )}
                                 {success && (
                                     <p className='text-green-500'>{success}</p>

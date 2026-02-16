@@ -587,3 +587,27 @@ export const userHasLoggedOnDate = internalQuery({
         return entries.length > 0
     },
 })
+
+// ============================================================================
+// getUserTotalLoggedOnDate (internal: for push reminders – remaining count)
+// ============================================================================
+export const getUserTotalLoggedOnDate = internalQuery({
+    args: {
+        userEmail: v.string(),
+        dateString: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query('users')
+            .withIndex('email', (q) => q.eq('email', args.userEmail))
+            .first()
+        if (!user) return 0
+        const entries = await ctx.db
+            .query('pushupEntries')
+            .withIndex('by_user_and_date', (q) =>
+                q.eq('userId', user._id).eq('date', args.dateString)
+            )
+            .collect()
+        return entries.reduce((sum, entry) => sum + entry.count, 0)
+    },
+})

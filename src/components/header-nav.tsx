@@ -3,11 +3,13 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from '@/components/ui/drawer'
 import { Menu } from 'lucide-react'
 
 interface HeaderNavProps {
@@ -42,9 +44,9 @@ export function HeaderNav({ signOut }: HeaderNavProps) {
                 </form>
             </div>
 
-            {/* Mobile: dropdown */}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+            {/* Mobile: bottom drawer */}
+            <Drawer direction='bottom'>
+                <DrawerTrigger asChild>
                     <Button
                         variant='ghost'
                         size='icon'
@@ -53,25 +55,37 @@ export function HeaderNav({ signOut }: HeaderNavProps) {
                     >
                         <Menu />
                     </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align='end' className='w-44'>
-                    {navLinks.map(({ href, label }) => (
-                        <DropdownMenuItem key={href} asChild>
-                            <Link href={href}>{label}</Link>
-                        </DropdownMenuItem>
-                    ))}
-                    <form action={signOut}>
-                        <DropdownMenuItem asChild>
-                            <button
-                                type='submit'
-                                className='w-full cursor-default'
-                            >
-                                Logout
-                            </button>
-                        </DropdownMenuItem>
-                    </form>
-                </DropdownMenuContent>
-            </DropdownMenu>
+                </DrawerTrigger>
+                <DrawerContent className='max-h-[85vh]'>
+                    <DrawerHeader>
+                        <DrawerTitle>Menu</DrawerTitle>
+                    </DrawerHeader>
+                    <nav className='flex flex-col gap-1 px-4 pb-6'>
+                        {navLinks.map(({ href, label }) => (
+                            <DrawerClose key={href} asChild>
+                                <Link href={href}>
+                                    <Button
+                                        variant='ghost'
+                                        className='w-full justify-start'
+                                    >
+                                        {label}
+                                    </Button>
+                                </Link>
+                            </DrawerClose>
+                        ))}
+                        <form action={signOut} className='mt-2 border-t pt-2'>
+                            <DrawerClose asChild>
+                                <button
+                                    type='submit'
+                                    className='w-full rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-muted'
+                                >
+                                    Logout
+                                </button>
+                            </DrawerClose>
+                        </form>
+                    </nav>
+                </DrawerContent>
+            </Drawer>
         </>
     )
 }

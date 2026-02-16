@@ -1,5 +1,5 @@
 import { mutation } from './_generated/server'
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 import { getDailyTarget } from './utils'
 import { z } from 'zod'
 import { api } from './_generated/api'
@@ -15,7 +15,7 @@ export const addPushups = mutation({
     },
     handler: async (ctx, args) => {
         if (!args.userEmail) {
-            throw new Error('Not authenticated')
+            throw new ConvexError('Not authenticated')
         }
 
         const user = await ctx.db
@@ -24,7 +24,7 @@ export const addPushups = mutation({
             .first()
 
         if (!user) {
-            throw new Error('User not found')
+            throw new ConvexError('User not found')
         }
 
         const date = new Date(args.submissionDate + 'T00:00:00')
@@ -48,9 +48,11 @@ export const addPushups = mutation({
                     .min(1, "You can't log less than 1 pushup")
                     .max(
                         remaining,
-                        `You can't log more than the remaining ${remaining} pushup${
-                            remaining === 1 ? '' : 's'
-                        }`
+                        remaining === 0
+                            ? "You've already hit today's goal — no need to log more!"
+                            : `You can log up to ${remaining} more pushup${
+                                  remaining === 1 ? '' : 's'
+                              } to reach today's goal.`
                     ),
                 submissionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
             })
@@ -60,7 +62,7 @@ export const addPushups = mutation({
             })
 
         if (!validatedFields.success) {
-            throw new Error(
+            throw new ConvexError(
                 validatedFields.error.errors.map((e) => e.message).join(', ')
             )
         }

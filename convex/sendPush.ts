@@ -88,8 +88,9 @@ export const sendToUser = internalAction({
 })
 
 /**
- * Daily reminder: send "Time for your pushups" to users who have a subscription
- * and have not logged today (UTC date). Run via cron (e.g. once per day).
+ * Daily reminder: send to users who have a subscription and have not completed
+ * today's challenge (UTC date). Message includes how many pushups remain.
+ * Run via cron (e.g. morning and evening).
  */
 export const sendDailyReminders = internalAction({
     args: {},
@@ -98,7 +99,6 @@ export const sendDailyReminders = internalAction({
         const privateKey = process.env.VAPID_PRIVATE_KEY
         if (!publicKey || !privateKey) return
 
-        // Today's date in UTC (reminders use UTC day for simplicity).
         const todayUtc = new Date().toISOString().slice(0, 10)
         const todayDate = new Date(todayUtc + 'T12:00:00.000Z')
         const target = getDailyTarget(todayDate)
@@ -108,26 +108,29 @@ export const sendDailyReminders = internalAction({
             {}
         )
 
-        const body =
-            target === 0
-                ? "It's a rest day – enjoy the break!"
-                : `Don't forget to log your pushups today! Target: ${target} pushups.`
-
         for (const userEmail of userEmails) {
-            const hasLoggedToday = await ctx.runQuery(
-                internal.queries.userHasLoggedOnDate,
+            const totalLogged = await ctx.runQuery(
+                internal.queries.getUserTotalLoggedOnDate,
                 { userEmail, dateString: todayUtc }
             )
-            if (!hasLoggedToday) {
-                await ctx.runAction(internal.sendPush.sendToUser, {
-                    userEmail,
-                    payload: {
-                        title: 'Time for your pushups',
-                        body,
-                        url: '/',
-                    },
-                })
-            }
+            if (totalLogged >= target) continue // completed or rest day with nothing to do
+
+            const remaining = target - totalLogged
+            const body =
+                target === 0
+                    ? "It's a rest day – enjoy the break!"
+                    : remaining === 1
+                      ? '1 pushup left to complete today\'s challenge.'
+                      : `${remaining} pushups left to complete today's challenge.`
+
+            await ctx.runAction(internal.sendPush.sendToUser, {
+                userEmail,
+                payload: {
+                    title: 'Time for your pushups',
+                    body,
+                    url: '/',
+                },
+            })
         }
     },
 })
