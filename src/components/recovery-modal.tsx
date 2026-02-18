@@ -56,6 +56,7 @@ export function RecoveryModal({
     onSuccess,
 }: RecoveryModalProps) {
     const { data: session } = useSession()
+    const formRef = useRef<HTMLFormElement>(null)
     const isDesktop = useMediaQuery('(min-width: 768px)')
     const recoverPushupsMutation = useMutation(api.mutations.recoverPushups)
     const [isPending, setIsPending] = useState(false)
@@ -101,6 +102,7 @@ export function RecoveryModal({
             if (result.success && !hasCalledSuccess.current) {
                 hasCalledSuccess.current = true
                 setSuccess(result.message)
+                formRef.current?.reset()
                 onSuccess()
                 window.dispatchEvent(new CustomEvent('pushups-updated'))
             }
@@ -146,7 +148,12 @@ export function RecoveryModal({
                 </div>
             </div>
 
-            <form key={formKey} action={handleSubmit} className='flex gap-2'>
+            <form
+                ref={formRef}
+                key={formKey}
+                action={handleSubmit}
+                className='flex gap-2'
+            >
                 <div className='flex-1'>
                     <Input
                         type='number'

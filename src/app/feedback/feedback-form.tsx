@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState, useEffect } from 'react'
+import { useActionState, useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/header'
 import Link from 'next/link'
@@ -27,6 +27,7 @@ interface FeedbackFormProps {
 }
 
 export function FeedbackForm({ userEmail, userName }: FeedbackFormProps) {
+    const formRef = useRef<HTMLFormElement>(null)
     const [state, formAction] = useActionState<
         SubmitFeedbackState | null,
         FormData
@@ -36,6 +37,13 @@ export function FeedbackForm({ userEmail, userName }: FeedbackFormProps) {
 
     useEffect(() => {
         if (state !== null) setIsSubmitting(false)
+    }, [state])
+
+    useEffect(() => {
+        if (state?.success === true) {
+            formRef.current?.reset()
+            setType('feedback')
+        }
     }, [state])
 
     return (
@@ -66,6 +74,7 @@ export function FeedbackForm({ userEmail, userName }: FeedbackFormProps) {
                     )}
 
                     <form
+                        ref={formRef}
                         action={formAction}
                         onSubmit={() => setIsSubmitting(true)}
                         className='flex flex-col gap-4 font-mono text-sm'
