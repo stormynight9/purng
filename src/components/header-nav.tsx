@@ -48,9 +48,9 @@ export function HeaderNav({ signOut }: HeaderNavProps) {
             <Drawer direction='bottom'>
                 <DrawerTrigger asChild>
                     <Button
-                        variant='ghost'
+                        variant='outline'
                         size='icon'
-                        className='md:hidden'
+                        className='fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))] z-40 h-12 w-12 rounded-full bg-background/80 shadow-lg backdrop-blur md:hidden [&_svg]:size-5'
                         aria-label='Open menu'
                     >
                         <Menu />
