@@ -47,6 +47,22 @@ function formatDate(dateString: string): string {
     })
 }
 
+// Get YYYY-MM-DD from createdAt for date comparison
+function getDateKey(createdAt: number): string {
+    const d = new Date(createdAt)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+// Format date for divider (e.g., "Sunday, Mar 8")
+function formatDateDividerLabel(createdAt: number): string {
+    const d = new Date(createdAt)
+    return d.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+    })
+}
+
 // Get type indicator color
 function getTypeColor(type: ActivityEntry['type']): string {
     switch (type) {
@@ -243,7 +259,7 @@ export function ActivityFeed({
         )
     }
 
-    // Filter duplicates and prepare entries with year cutoff markers
+    // Filter duplicates and prepare entries with date/year dividers
     const processedEntries = entries
         .filter(
             (entry, index, self) =>
@@ -253,16 +269,26 @@ export function ActivityFeed({
             const result: (
                 | ActivityEntry
                 | { type: 'year-divider'; fromYear: number; toYear: number }
+                | { type: 'date-divider'; label: string; dateKey: string }
             )[] = [entry]
 
-            // Check if we need to add a year divider
             if (index < array.length - 1) {
-                const currentYear = new Date(entry.createdAt).getFullYear()
-                const nextYear = new Date(
-                    array[index + 1].createdAt
-                ).getFullYear()
+                const nextEntry = array[index + 1]
+                const currentDateKey = getDateKey(entry.createdAt)
+                const nextDateKey = getDateKey(nextEntry.createdAt)
 
-                // Add divider when transitioning between different years
+                // Add date divider when the calendar day changes
+                if (currentDateKey !== nextDateKey) {
+                    result.push({
+                        type: 'date-divider',
+                        label: formatDateDividerLabel(nextEntry.createdAt),
+                        dateKey: nextDateKey,
+                    })
+                }
+
+                // Add year divider when transitioning between different years
+                const currentYear = new Date(entry.createdAt).getFullYear()
+                const nextYear = new Date(nextEntry.createdAt).getFullYear()
                 if (currentYear !== nextYear) {
                     result.push({
                         type: 'year-divider',
@@ -280,6 +306,18 @@ export function ActivityFeed({
             {/* Log rows */}
             <div>
                 {processedEntries.map((item, index) => {
+                    if ('type' in item && item.type === 'date-divider') {
+                        return (
+                            <div
+                                key={`date-divider-${item.dateKey}-${index}`}
+                                className='flex justify-center border-b border-border/30 py-1.5'
+                            >
+                                <span className='font-mono text-[11px] text-muted-foreground/70'>
+                                    {item.label}
+                                </span>
+                            </div>
+                        )
+                    }
                     if ('type' in item && item.type === 'year-divider') {
                         return (
                             <div
